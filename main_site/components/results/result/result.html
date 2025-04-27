@@ -1,0 +1,13 @@
+<li
+  class="{% if color %}from-{{ color }}-light to-{{ color }}-dark{% else %}bg-slate-900{% endif %} {% if color %}text-black{% else %}text-white{% endif %} justify-left flex gap-2 rounded-br-2xl bg-gradient-to-r p-1 pr-3 align-middle"
+>
+  <div class="justify-left flex flex-1 items-center gap-2">
+    <div
+      class="bg-white border-black text-black rounded-br-lg border-2 px-2 py-1 font-extrabold"
+    >
+      {{ place }}
+    </div>
+    <span class="flex items-center">{{ name }}</span>
+  </div>
+  <span class="text-white flex items-center font-extralight">{{time}}</span>
+</li>

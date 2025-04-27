@@ -1,0 +1,1 @@
+tailwindcss -i ./main_site/static/src/main.css -o ./main_site/static/dist/main.css --watch

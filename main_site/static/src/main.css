@@ -1,0 +1,41 @@
+/* static/src/main.css */
+@import "tailwindcss";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@theme {
+  --font-fast: "Faster One", system-ui;
+  --font-alum: "Alumni Sans Collegiate One", sans-serif;
+  --font-tech: "Share Tech", sans-serif;
+  --font-race: "Racing Sans One", sans-serif;
+  --color-gold-light: #ffff00;
+  --color-gold-dark: #ffcc00;
+  --color-silver-light: #cccccc;
+  --color-silver-dark: #808080;
+  --color-bronze-light: #ffd700;
+  --color-bronze-dark: #8b4513;
+}
+
+.invert {
+  filter: brightness(1) invert(0);
+}
+
+.invert-white {
+  filter: brightness(0);
+}
+
+.invert-logo {
+  filter: invert(70%) sepia(11%) saturate(7427%) hue-rotate(359deg)
+    brightness(101%) contrast(103%);
+}
+
+.uncle-sam {
+  -webkit-filter: drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white);
+  filter: drop-shadow(1px 1px 0 white) drop-shadow(-1px -1px 0 white);
+}
+
+.custom-shadow {
+  box-shadow: inset 0 0 24px black;
+}

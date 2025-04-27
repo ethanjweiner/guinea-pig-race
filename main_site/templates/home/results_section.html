@@ -1,0 +1,30 @@
+<div
+  class="bg-slate-700 custom-shadow relative h-full w-full overflow-hidden rounded-lg p-3 pr-2"
+>
+  <div class="h-full overflow-y-auto p-5 pb-10 pr-4">
+    <h1 class="text-white font-race mb-4 block text-2xl font-bold uppercase">
+      2024 Results
+    </h1>
+    <div
+      class="from-transparent via-white to-transparent w-75 mb-5 h-1 bg-gradient-to-r via-40%"
+    ></div>
+    <div class="flex flex-col gap-8 xl:flex-row">
+      <div class="flex-1">
+        {% include "home/results_highlight.html" with title="Men" %}
+      </div>
+      <div class="flex-1">
+        {% include "home/results_highlight.html" with title="Women" %}
+      </div>
+    </div>
+    <button
+      href="/results"
+      class="bg-yellow-300 text-black font-tech text-md border-black mt-5 rounded-lg border-2 p-1 px-2 font-bold uppercase"
+    >
+      View All Results
+      <i class="fa-solid fa-forward ml-1"></i>
+    </button>
+  </div>
+  <div
+    class="from-black to-transparent h-15 absolute bottom-0 left-0 w-full rounded-b-lg bg-gradient-to-t opacity-80"
+  ></div>
+</div>
