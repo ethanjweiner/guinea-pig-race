@@ -21,7 +21,3 @@ document.addEventListener("click", (event) => {
     nav.classList.add("translate-x-60");
   }
 });
-
-document.getElementById("seed-time-info").addEventListener("click", () => {
-  document.getElementById("seed-time-info-content").classList.toggle("hidden");
-});

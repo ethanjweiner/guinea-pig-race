@@ -6,13 +6,14 @@
     <div class="border-white mr-2 flex items-center gap-2 pr-4 lg:border-r-2">
       <a class="flex cursor-pointer gap-2" href="{% url 'home' %}">
         <img src="{% static 'images/logo.png' %}" class="invert-logo h-6" />
-        GUINEA PIG 1 MILE RACE
+        THE GREAT AMERICAN GUINEA PIG 1 MILE
       </a>
     </div>
-    <ul class="hidden flex-row items-center lg:flex">
+    <ul class="hidden flex-row items-center gap-1 lg:flex">
       {% component "nav_item" label="Home" url="home" icon="fa-home" %}{%
       endcomponent %} {% component "nav_item" label="Register" url="register"
-      icon="fa-pencil" %}{% endcomponent %}
+      icon="fa-pencil" %}{% endcomponent %} {% component "nav_item"
+      label="Results" url="results" icon="fa-table" %}{% endcomponent %}
     </ul>
   </div>
 

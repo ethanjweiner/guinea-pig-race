@@ -1,5 +1,5 @@
 <h2 class="text-white font-tech mb-2 text-xl font-bold">{{ title }}</h2>
 <ul class="font-tech flex flex-col gap-2">
-  {% for result in results|slice:":5" %} {% component "result" result=result
-  %}{% endcomponent %} {% endfor %}
+  {% for result in results %} {% component "result" result=result %}{%
+  endcomponent %} {% endfor %}
 </ul>

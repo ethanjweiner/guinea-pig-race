@@ -22,19 +22,20 @@
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'dist/main.css' %}" />
-    <title>Guinea Pig 1 Mile Race</title>
+    <title>The Great American Guinea Pig 1 Mile</title>
   </head>
   <body
     class="overflow-hidden"
     hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
   >
     <div class="flex h-screen flex-col">
-      {% include "home/top_nav.html" %}
+      {% include "auxiliary/top_nav.html" %}
       <div
         class="relative flex flex-1 flex-col overflow-hidden overflow-y-auto overflow-x-hidden lg:overflow-y-hidden"
       >
-        {% include "home/mobile_nav.html" %} {% include "home/image.html" %} {%
-        block content %} {% endblock content %}
+        <div class="lg:hidden">{% include "auxiliary/mobile_nav.html" %}</div>
+        {% include "auxiliary/hero_image.html" %} {% block content %} {%
+        endblock content %}
       </div>
     </div>
     <script src="{% static 'src/index.js' %}"></script>

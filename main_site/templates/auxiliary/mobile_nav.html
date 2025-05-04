@@ -2,9 +2,10 @@
   class="bg-slate-900 text-white max-w-100 font-tech border-slate-700 z-100 fixed right-0 top-12 h-full translate-x-60 transform justify-center border-l-4 p-2 py-3 transition-transform duration-300"
   id="mobile-nav"
 >
-  <ul class="flex flex-col">
+  <ul class="flex flex-col gap-1">
     {% component "nav_item" label="Home" url="home" icon="fa-home" %}{%
     endcomponent %} {% component "nav_item" label="Register" url="register"
-    icon="fa-pencil" %}{% endcomponent %}
+    icon="fa-pencil" %}{% endcomponent %} {% component "nav_item"
+    label="Results" url="results" icon="fa-table" %}{% endcomponent %}
   </ul>
 </nav>
