@@ -1,0 +1,140 @@
+{% extends "base.html" %} {% block content %} {% load static %}
+
+<div class="bg-slate-900 relative z-10 flex-1 justify-center p-4 md:p-10">
+  <form class="bg-white/5 mx-auto w-full max-w-2xl rounded-lg p-6 shadow-lg">
+    <div class="-mx-3 mb-6 flex flex-wrap">
+      <!-- First Name -->
+      <div class="mb-6 w-full px-3 md:w-1/2">
+        <label
+          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
+          for="grid-first-name"
+        >
+          First Name
+        </label>
+        <input
+          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
+          id="grid-first-name"
+          type="text"
+          placeholder="Tyler"
+          required
+        />
+      </div>
+      <!-- Last Name -->
+      <div class="mb-6 w-full px-3 md:w-1/2">
+        <label
+          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
+          for="grid-last-name"
+        >
+          Last Name
+        </label>
+        <input
+          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
+          id="grid-last-name"
+          type="text"
+          placeholder="Klein"
+          required
+        />
+      </div>
+      <!-- Email -->
+      <div class="mb-6 w-full px-3">
+        <label
+          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
+          for="grid-email"
+        >
+          Email
+        </label>
+        <input
+          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
+          id="grid-email"
+          type="email"
+          placeholder="the.tyler.klein@hotmail.com"
+          required
+        />
+      </div>
+      <!-- Date of Birth -->
+      <div class="mb-6 w-full px-3 md:w-1/2">
+        <label
+          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
+          for="grid-dob"
+        >
+          Date of Birth
+        </label>
+        <input
+          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
+          id="grid-dob"
+          type="date"
+          required
+        />
+      </div>
+      <!-- Gender -->
+      <div class="mb-6 w-full px-3 md:w-1/2">
+        <label
+          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
+          for="grid-gender"
+        >
+          Gender
+        </label>
+        <select
+          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
+          id="grid-gender"
+          required
+        >
+          <option value="" disabled selected>Select your gender</option>
+          <option value="male">Male</option>
+          <option value="female">Female</option>
+          <option value="non-binary">Non-binary</option>
+        </select>
+      </div>
+      <!-- Sponsor -->
+      <div class="mb-6 w-full px-3">
+        <label
+          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
+          for="grid-sponsor"
+        >
+          Sponsor
+        </label>
+        <input
+          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
+          id="grid-sponsor"
+          type="text"
+          placeholder="Bass Pro Shops"
+        />
+      </div>
+      <!-- Seed Time -->
+      <div class="mb-2 w-full px-3">
+        <label
+          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
+          for="grid-seed-time"
+        >
+          Seed Time
+        </label>
+        <p class="text-gray-400 mb-4 text-xs">
+          Your seed time is your expected time for completing a 1-mile run (e.g.
+          10:00). This information helps us place you in the correct starting
+          group for the race. We have a team of psychic guinea pigs who will
+          know if you're lying.
+        </p>
+        <input
+          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
+          id="grid-seed-time"
+          type="text"
+          pattern="[0-9]{1,2}:[0-5][0-9]"
+          placeholder="5:59"
+          required
+        />
+      </div>
+    </div>
+    <button
+      class="from-yellow-500 to-red-500 hover:from-yellow-600 hover:to-red-600 text-white focus:shadow-outline mt-6 w-full transform cursor-pointer rounded bg-gradient-to-r px-4 py-2 font-bold transition duration-300 ease-in-out hover:bg-gradient-to-r focus:outline-none"
+    >
+      Register Now
+    </button>
+  </form>
+  <!-- TODO: Random guinea pigs -->
+  <!-- <img
+    src="{% static 'images/logo.png' %}"
+    class="logo-dark-blue h-15 absolute"
+    style="left: 5%; top: 5%; rotate: 67deg"
+  /> -->
+</div>
+{% endblock content %}

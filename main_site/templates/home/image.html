@@ -1,0 +1,11 @@
+{% load static %}
+<div class="relative">
+  <img
+    src="{% static 'images/main.jpg' %}"
+    class="max-h-100 w-screen object-cover object-top"
+  />
+  <div
+    class="from-black to-transparent absolute inset-0 top-1/2 bg-gradient-to-t opacity-80"
+  ></div>
+  {% include "home/flames.html" %}
+</div>

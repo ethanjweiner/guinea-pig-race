@@ -4,17 +4,18 @@
 >
   <img
     src="{% static 'images/uncle_sam.png' %}"
-    class="uncle-sam z-100 -top-17 md:-top-35 absolute -right-5 w-20 md:-right-10 md:w-40"
+    class="uncle-sam z-100 -top-17 lg:-top-35 absolute -right-5 w-20 lg:-right-10 lg:w-40"
   />
   <h1 class="text-white font-fast mb-4 block text-4xl font-bold">Hello.</h1>
   <p class="text-white mb-10 block">
     Welcome to the Guinea Pig 1 mile race. A race of challenges, fun, and
     competition. No bullshit, we keep it simple.
   </p>
-  <button
+  <a
+    href="{% url 'register' %}"
     class="from-yellow-500 to-yellow-200 text-black rounded-4xl font-race flex w-fit cursor-pointer items-center gap-2 bg-gradient-to-r px-6 py-3 text-2xl uppercase shadow-xl"
   >
     Register
     <img src="{% static 'images/register.png' %}" class="w-8 invert" />
-  </button>
+  </a>
 </div>

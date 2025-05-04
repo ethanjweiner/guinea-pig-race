@@ -1,0 +1,25 @@
+{% load static %}
+<nav
+  class="bg-gray-900 text-white font-tech border-slate-700 flex justify-between border-b-2 p-2"
+>
+  <div class="text-md flex items-center">
+    <div class="border-white mr-2 flex items-center gap-2 pr-4 lg:border-r-2">
+      <a class="flex cursor-pointer gap-2" href="{% url 'home' %}">
+        <img src="{% static 'images/logo.png' %}" class="invert-logo h-6" />
+        GUINEA PIG 1 MILE RACE
+      </a>
+    </div>
+    <ul class="hidden flex-row items-center lg:flex">
+      {% component "nav_item" label="Home" url="home" icon="fa-home" %}{%
+      endcomponent %} {% component "nav_item" label="Register" url="register"
+      icon="fa-pencil" %}{% endcomponent %}
+    </ul>
+  </div>
+
+  <button
+    class="text-white cursor-pointer pr-1 text-2xl lg:hidden"
+    id="mobile-nav-button"
+  >
+    <i class="fa-solid fa-bars"></i>
+  </button>
+</nav>

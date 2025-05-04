@@ -1,65 +1,31 @@
 {% extends "base.html" %} {% block content %} {% load static %}
-<div class="flex h-screen flex-col">
-  <nav
-    class="bg-gray-900 text-white font-tech flex justify-between p-2 text-2xl"
-  >
-    <img src="{% static 'images/logo.png' %}" class="invert-logo h-8" />
-    <button class="text-white pr-1 text-2xl">
-      <i class="fa-solid fa-bars"></i>
-    </button>
-  </nav>
-  <!-- DESKTOP -->
-  <div class="hidden flex-1 flex-col overflow-hidden md:flex">
-    <div class="relative">
-      <img
-        src="{% static 'images/main.jpg' %}"
-        class="max-h-100 w-screen object-cover object-top"
-      />
-      <div
-        class="from-black to-transparent absolute inset-0 top-1/2 bg-gradient-to-t opacity-80"
-      ></div>
-      {% include "home/flames.html" %}
-    </div>
-    <div
-      class="bg-slate-900 flex-column relative z-0 flex flex-1 overflow-hidden"
-    >
-      <div class="md:w-110 relative flex w-full flex-col justify-center">
-        {% include "home/welcome_blurb.html" %}
-      </div>
-      <div class="flex flex-1 items-center">
-        <div
-          class="from-red-700 to-yellow-500 p-15 relative box-border h-full flex-1 items-center justify-center bg-gradient-to-tl"
-        >
-          {% include "home/results_section.html" %}
-        </div>
-        {% include "home/navbar.html" %}
-      </div>
-    </div>
-    {% include "home/bottom_track.html" %}
+
+<!-- DESKTOP -->
+<div
+  class="bg-slate-900 flex-column relative z-0 hidden flex-1 overflow-hidden lg:flex"
+>
+  <div class="lg:w-110 relative flex w-full flex-col justify-center">
+    {% include "home/welcome_blurb.html" %}
   </div>
-  <!-- MOBILE -->
-  <div class="flex-1 overflow-y-auto overflow-x-hidden md:hidden">
-    <div class="relative">
-      <img
-        src="{% static 'images/main.jpg' %}"
-        class="max-h-100 w-screen object-cover object-top"
-      />
-      <div
-        class="from-black to-transparent absolute inset-0 top-1/2 bg-gradient-to-t opacity-80"
-      ></div>
-      {% include "home/flames.html" %}
-    </div>
+  <div class="flex flex-1 items-center">
     <div
-      class="bg-slate-900 flex-column relative z-0 flex flex-1 overflow-y-hidden py-20"
-    >
-      {% include "home/welcome_blurb.html" %}
-    </div>
-    <div
-      class="from-red-700 to-yellow-500 relative box-border flex flex-1 items-center justify-center bg-gradient-to-tl p-8"
+      class="from-red-700 to-yellow-500 p-15 relative flex h-full flex-1 items-center justify-center bg-gradient-to-tl"
     >
       {% include "home/results_section.html" %}
     </div>
-    {% include "home/bottom_track.html" %}
   </div>
 </div>
-{% endblock content %}
+<!-- MOBILE -->
+<div class="lg:hidden">
+  <div
+    class="bg-slate-900 relative z-0 flex flex-1 flex-col overflow-y-hidden py-20"
+  >
+    {% include "home/welcome_blurb.html" %}
+  </div>
+  <div
+    class="from-red-700 to-yellow-500 relative flex flex-1 items-center justify-center bg-gradient-to-tl p-8"
+  >
+    {% include "home/results_section.html" %}
+  </div>
+</div>
+{% include "home/bottom_track.html" %} {% endblock content %}

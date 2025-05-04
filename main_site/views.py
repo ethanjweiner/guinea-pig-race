@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.template import loader
 from main_site.models import Result
+from django.shortcuts import redirect
 
 
 def index(request):
@@ -15,3 +16,12 @@ def index(request):
         ]
     }
     return HttpResponse(template.render(context, request))
+
+
+def home(_):
+    return redirect("index")
+
+
+def register(request):
+    template = loader.get_template("register/index.html")
+    return HttpResponse(template.render({}, request))

@@ -27,8 +27,11 @@
 }
 
 .invert-logo {
-  filter: invert(70%) sepia(11%) saturate(7427%) hue-rotate(359deg)
-    brightness(101%) contrast(103%);
+  filter: invert(100%);
+}
+
+.logo-dark-blue {
+  filter: invert(100%) brightness(10%) contrast(50%) hue-rotate(180deg);
 }
 
 .uncle-sam {

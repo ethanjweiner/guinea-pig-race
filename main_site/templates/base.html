@@ -14,13 +14,29 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
+    <script
+      src="https://unpkg.com/htmx.org@2.0.4"
+      integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+      crossorigin="anonymous"
+    ></script>
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'dist/main.css' %}" />
-
     <title>Guinea Pig 1 Mile Race</title>
   </head>
-  <body class="overflow-hidden">
-    {% block content %} {% endblock content %}
+  <body
+    class="overflow-hidden"
+    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+  >
+    <div class="flex h-screen flex-col">
+      {% include "home/top_nav.html" %}
+      <div
+        class="relative flex flex-1 flex-col overflow-hidden overflow-y-auto overflow-x-hidden lg:overflow-y-hidden"
+      >
+        {% include "home/mobile_nav.html" %} {% include "home/image.html" %} {%
+        block content %} {% endblock content %}
+      </div>
+    </div>
+    <script src="{% static 'src/index.js' %}"></script>
   </body>
 </html>

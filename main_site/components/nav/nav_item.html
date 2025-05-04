@@ -1,0 +1,8 @@
+<li
+  class="{% if is_active %}text-yellow-300 bg-slate-700{% else %}text-white{% endif %} cursor-pointer rounded-lg p-2"
+>
+  <a href="{% url url %}">
+    <i class="{{ icon }} fa-solid"></i>
+    {{ label }}
+  </a>
+</li>
