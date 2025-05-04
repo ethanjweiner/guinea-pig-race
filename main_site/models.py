@@ -20,6 +20,7 @@ class Registrant(models.Model):
     seed_time = models.CharField(max_length=255)
     sponsor = models.CharField(max_length=255)
     year = models.IntegerField()
+    hometown = models.CharField(max_length=255, null=True)
 
 
 class Result(models.Model):
