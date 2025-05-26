@@ -1,0 +1,45 @@
+{% extends "base.html" %} {% block content %} {% load static %}
+
+<div
+  class="font-roman text-white from-red-700 to-yellow-500 text-md relative flex flex-1 flex-col items-center justify-center gap-8 bg-gradient-to-tl p-6 md:flex-row md:text-lg lg:p-12 lg:text-xl"
+>
+  <div
+    class="bg-slate-700 custom-shadow relative z-0 h-full w-full rounded-lg p-10"
+  >
+    <!-- TODO: Swap to speech bubble img with main quote -->
+    <img
+      src="{% static 'images/uncle_sam.png' %}"
+      class="uncle-sam -top-17 lg:-top-25 z-100 lg:w-30 absolute -right-5 w-20 lg:-right-10"
+    />
+    <p class="mb-4">
+      250 years ago, on a beautiful spring morning in Concord, Massachusetts,
+      brave souls awoke with rebellion on their mind, freedom in their hearts,
+      and the spirit of revolution in their souls. In the face of repression
+      tyranny from the most powerful empire in the world, they planted the boots
+      in the ground and fired the shot heard round the world. These ordinary
+      people’s extraordinary courage birthed an imperfect nation rooted in
+      perfect ideals: freedom, democracy, liberty and justice for all, and an
+      unrelenting insistence on measuring distance using miles, not kilometers.
+    </p>
+    <p class="mb-4">
+      One year ago, just down the road in Somerville, Massachusetts, a group of
+      17 visionaries birthed another revolution. This ‘shot heard round the
+      world’ came from a toy pop gun rather than a musket, but the movement was
+      just as important. Faced with a world that told them that the track -- the
+      sacred oval, the pinnacle of racing -- was reserved for high school,
+      college, and professional competition, these young-adult amateurs took a
+      stand. They knew the conniving running-industrial-complex wanted mid
+      twenty year olds like them on the roads paying top dollar to run long
+      races with funny numbers like 26.2 and 13.1, but they were undeterred.
+      Armed with nothing but their shoes, a smelly trash can full of gatorade,
+      and the deeply natural craving to race a single mile, these young people
+      took off at the sound of the pop gun and in doing so changed the racing
+      world.
+    </p>
+    <p>
+      On August 2, 2025 we will celebrate the second anniversary of this great
+      American race. Join us for the Guinea Pig Mile Part II.
+    </p>
+  </div>
+  {% endblock %}
+</div>

@@ -79,3 +79,8 @@ def results(request):
             {"men_results": men_results, "women_results": women_results}, request
         )
     )
+
+
+def about(request):
+    template = loader.get_template("about/index.html")
+    return HttpResponse(template.render({}, request))

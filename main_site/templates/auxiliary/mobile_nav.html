@@ -3,9 +3,6 @@
   id="mobile-nav"
 >
   <ul class="flex flex-col gap-1">
-    {% component "nav_item" label="Home" url="home" icon="fa-home" %}{%
-    endcomponent %} {% component "nav_item" label="Register" url="register"
-    icon="fa-pencil" %}{% endcomponent %} {% component "nav_item"
-    label="Results" url="results" icon="fa-table" %}{% endcomponent %}
+    {% include "auxiliary/nav_items.html" %}
   </ul>
 </nav>
