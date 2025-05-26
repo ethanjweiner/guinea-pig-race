@@ -1,8 +1,8 @@
-<li
-  class="{% if is_active %}text-yellow-300 bg-slate-700{% else %}text-white{% endif %} hover:bg-slate-800 cursor-pointer rounded-lg p-2 transition-colors duration-200"
->
-  <a href="{% url url %}">
+<a href="{% url url %}">
+  <li
+    class="{% if is_active %}text-yellow-300 bg-slate-700{% else %}text-white{% endif %} hover:bg-slate-800 cursor-pointer rounded-lg p-2 transition-colors duration-200"
+  >
     <i class="{{ icon }} fa-solid"></i>
     {{ label }}
-  </a>
-</li>
+  </li>
+</a>

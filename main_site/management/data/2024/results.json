@@ -1,88 +1,104 @@
 [
   {
-    "registrant": "will-purnell_2024",
+    "first_name": "Will",
+    "last_name": "Purnell",
     "overall_place": 1,
     "gender_place": 1,
     "time": "4:24:00"
   },
   {
-    "registrant": "ethan-weiner_2024",
+    "first_name": "Ethan",
+    "last_name": "Weiner",
     "overall_place": 2,
     "gender_place": 2,
     "time": "4:30:00"
   },
   {
-    "registrant": "jeremiah-singer_2024",
+    "first_name": "Jeremiah",
+    "last_name": "Singer",
     "overall_place": 3,
     "gender_place": 3,
     "time": "4:48:00"
   },
   {
-    "registrant": "alex-sharp_2024",
+    "first_name": "Alex",
+    "last_name": "Sharp",
     "overall_place": 4,
     "gender_place": 4,
     "time": "4:52:00"
   },
   {
-    "registrant": "ben-foster_2024",
+    "first_name": "Ben",
+    "last_name": "Foster",
     "overall_place": 5,
     "gender_place": 5,
     "time": "5:14:00"
   },
   {
-    "registrant": "bobby-lovitch_2024",
+    "first_name": "Bobby",
+    "last_name": "Lovitch",
     "overall_place": 6,
     "gender_place": 6,
     "time": "5:21:00"
   },
   {
-    "registrant": "carsten-carey_2024",
+    "first_name": "Carsten",
+    "last_name": "Carey",
     "overall_place": 7,
     "gender_place": 7,
     "time": "5:27:00"
   },
   {
-    "registrant": "kai-renshaw_2024",
+    "first_name": "Kai",
+    "last_name": "Renshaw",
     "overall_place": 8,
     "gender_place": 8,
     "time": "5:36:00"
   },
   {
-    "registrant": "aedan-brown_2024",
+    "first_name": "Aedan",
+    "last_name": "Brown",
     "overall_place": 9,
     "gender_place": 9,
     "time": "5:51:00"
   },
   {
-    "registrant": "paul-purnell_2024",
+    "first_name": "Paul",
+    "last_name": "Purnell",
     "overall_place": 10,
     "gender_place": 10,
     "time": "6:03:00"
   },
   {
-    "registrant": "jose-naveo_2024",
+    "first_name": "Jose",
+    "last_name": "Naveo",
     "overall_place": 11,
     "gender_place": 11,
     "time": "6:04:00"
   },
   {
-    "registrant": "jaxson-merrill_2024",
+    "first_name": "Jaxson",
+    "last_name": "Merrill",
     "dnf": true
   },
   {
-    "registrant": "jon-foster_2024",
+    "first_name": "Jon",
+    "last_name": "Foster",
     "dnf": true
   },
   {
-    "registrant": "tyler-klein_2024",
+    "first_name": "Tyler",
+    "last_name": "Klein",
     "dnf": true
   },
   {
-    "registrant": "grace-weiner_2024",
+    "first_name": "Grace",
+    "last_name": "Weiner",
     "dnf": true
   },
   {
-    "registrant": "lucille-komar_2024",
+    "first_name": "Lucille",
+    "last_name": "Komar",
     "dnf": true
   }
 ]

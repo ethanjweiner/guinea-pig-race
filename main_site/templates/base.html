@@ -22,7 +22,7 @@
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'dist/main.css' %}" />
-    <title>The Great American Guinea Pig 1 Mile</title>
+    <title>The Great Guinea Pig 1 Mile of Boston</title>
   </head>
   <body
     class="overflow-hidden"
@@ -31,7 +31,7 @@
     <div class="flex h-screen flex-col">
       {% include "auxiliary/top_nav.html" %}
       <div
-        class="relative flex flex-1 flex-col overflow-hidden overflow-y-auto overflow-x-hidden lg:overflow-y-hidden"
+        class="relative flex flex-1 flex-col overflow-hidden overflow-y-auto overflow-x-hidden"
       >
         <div class="lg:hidden">{% include "auxiliary/mobile_nav.html" %}</div>
         {% include "auxiliary/hero_image.html" %} {% block content %} {%
