@@ -6,3 +6,7 @@
 ## Seeding Data
 
 - Run `python manage.py seed`
+
+## Installing Dependencies
+
+Add new deps by running `python -m pip install` to install in this project's `venv`.
