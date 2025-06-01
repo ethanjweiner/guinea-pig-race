@@ -2,11 +2,11 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "8000:80"
     env_file:
       - .env
     environment:
       - PYTHONUNBUFFERED=1
       - DJANGO_SETTINGS_MODULE=race_site.settings
-    restart: unless-stopped
-    command: tail -f /dev/null
+    # restart: unless-stopped
+    # command: tail -f /dev/null
