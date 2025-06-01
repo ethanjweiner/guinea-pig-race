@@ -14,20 +14,12 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
-    <script
-      src="https://unpkg.com/htmx.org@2.0.4"
-      integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
-      crossorigin="anonymous"
-    ></script>
 
     {% load static %}
     <link rel="stylesheet" href="{% static 'dist/main.css' %}" />
     <title>The Great Guinea Pig 1 Mile of Boston</title>
   </head>
-  <body
-    class="overflow-hidden"
-    hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-  >
+  <body class="overflow-hidden">
     <div class="flex h-screen flex-col">
       {% include "auxiliary/top_nav.html" %}
       <div
