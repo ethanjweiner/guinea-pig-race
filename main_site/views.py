@@ -63,6 +63,11 @@ def register(request):
     return HttpResponse(template.render(context, request))
 
 
+def awards(request):
+    template = loader.get_template("awards/index.html")
+    return HttpResponse(template.render({}, request))
+
+
 # TODO: Iterate by year
 def results(request):
     template = loader.get_template("results/index.html")
