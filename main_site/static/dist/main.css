@@ -21,7 +21,6 @@
     --color-slate-700: oklch(37.2% 0.044 257.287);
     --color-slate-800: oklch(27.9% 0.041 260.031);
     --color-slate-900: oklch(20.8% 0.042 265.755);
-    --color-gray-100: oklch(96.7% 0.003 264.542);
     --color-gray-200: oklch(92.8% 0.006 264.531);
     --color-gray-400: oklch(70.7% 0.022 261.325);
     --color-gray-500: oklch(55.1% 0.027 264.364);
@@ -344,8 +343,8 @@
   .h-screen {
     height: 100vh;
   }
-  .max-h-100 {
-    max-height: calc(var(--spacing) * 100);
+  .max-h-80 {
+    max-height: calc(var(--spacing) * 80);
   }
   .max-h-full {
     max-height: 100%;
@@ -365,9 +364,6 @@
   .w-75 {
     width: calc(var(--spacing) * 75);
   }
-  .w-100 {
-    width: calc(var(--spacing) * 100);
-  }
   .w-fit {
     width: fit-content;
   }
@@ -386,11 +382,14 @@
   .max-w-300 {
     max-width: calc(var(--spacing) * 300);
   }
+  .max-w-500 {
+    max-width: calc(var(--spacing) * 500);
+  }
+  .max-w-800 {
+    max-width: calc(var(--spacing) * 800);
+  }
   .flex-1 {
     flex: 1;
-  }
-  .flex-2 {
-    flex: 2;
   }
   .translate-x-0 {
     --tw-translate-x: calc(var(--spacing) * 0);
@@ -408,9 +407,6 @@
   }
   .list-inside {
     list-style-position: inside;
-  }
-  .list-outside {
-    list-style-position: outside;
   }
   .list-decimal {
     list-style-type: decimal;
@@ -687,9 +683,6 @@
   .py-3 {
     padding-block: calc(var(--spacing) * 3);
   }
-  .py-5 {
-    padding-block: calc(var(--spacing) * 5);
-  }
   .py-8 {
     padding-block: calc(var(--spacing) * 8);
   }
@@ -707,9 +700,6 @@
   }
   .pr-4 {
     padding-right: calc(var(--spacing) * 4);
-  }
-  .pr-15 {
-    padding-right: calc(var(--spacing) * 15);
   }
   .pb-10 {
     padding-bottom: calc(var(--spacing) * 10);
@@ -771,9 +761,6 @@
   }
   .text-black {
     color: var(--color-black);
-  }
-  .text-blue-500 {
-    color: var(--color-blue-500);
   }
   .text-gray-400 {
     color: var(--color-gray-400);
@@ -957,21 +944,6 @@
   .lg\:w-35 {
     @media (width >= 64rem) {
       width: calc(var(--spacing) * 35);
-    }
-  }
-  .lg\:w-40 {
-    @media (width >= 64rem) {
-      width: calc(var(--spacing) * 40);
-    }
-  }
-  .lg\:flex-1 {
-    @media (width >= 64rem) {
-      flex: 1;
-    }
-  }
-  .lg\:flex-2 {
-    @media (width >= 64rem) {
-      flex: 2;
     }
   }
   .lg\:border-r-2 {
