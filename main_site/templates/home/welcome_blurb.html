@@ -1,16 +1,33 @@
 {% load static %}
 <div
-  class="pr-15 bg-orange-600 relative h-fit w-11/12 rounded-e-xl p-10 shadow-xl"
+  class="bg-orange-600 relative h-fit w-11/12 overflow-visible rounded-e-xl px-10 py-8 shadow-xl"
 >
   <img
     src="{% static 'images/uncle_sam.png' %}"
-    class="uncle-sam z-100 -top-17 lg:-top-35 absolute -right-5 w-20 lg:-right-10 lg:w-40"
+    class="uncle-sam z-100 -top-17 lg:-top-35 w-25 lg:w-35 absolute -right-5 lg:-right-10"
   />
-  <h1 class="text-white font-fast mb-4 block text-4xl font-bold">Hello.</h1>
-  <p class="text-white font-tech mb-10 block">
-    Welcome to The Guinea Pig Mile. 4 laps. 1609 meters. A race so beautiful
-    it’ll make you believe in a higher power, and so painful it’ll make you pray
-    to one.
+  <h1 class="text-white font-fast mb-4 block text-4xl font-bold">Welcome.</h1>
+  <p class="text-white font-tech mb-4 block text-lg">
+    The Guinea Pig Mile. 4 laps. 1609 meters. A race so beautiful it’ll make you
+    believe in a higher power, and so painful it’ll make you pray to one.
+  </p>
+  <div
+    class="from-transparent via-white to-transparent mb-5 h-0.5 w-full bg-gradient-to-r via-20%"
+  ></div>
+  <ul class="text-white font-tech mb-3 block list-inside list-decimal text-lg">
+    <li>LOCATION:
+      <span class="font-extrabold"
+        >The Track at Danehy Park, Cambridge, MA</span
+      >
+    </li>
+    <li>
+      DATE: <span class="font-extrabold">Saturday, August 2nd, 2025</span>
+    </li>
+    <li>TIME: <span class="font-extrabold">6:00 PM</span></li>
+  </ul>
+  <p class="text-white font-tech mb-8 block text-lg italic">
+    Please anticipate the event to take several hours. BYOS (Bring Your Own
+    Snacks). Water and Gatorade will be provided.
   </p>
   <a
     href="{% url 'register' %}"
