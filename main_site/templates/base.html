@@ -20,10 +20,10 @@
     <title>The Great Guinea Pig 1 Mile of Boston</title>
   </head>
   <body>
-    <div class="flex h-screen flex-col">
+    <div class="flex h-screen flex-col overflow-hidden">
       {% include "auxiliary/top_nav.html" %}
       <div
-        class="relative flex flex-1 flex-col overflow-hidden overflow-y-auto overflow-x-hidden"
+        class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden"
       >
         <div class="lg:hidden">{% include "auxiliary/mobile_nav.html" %}</div>
         {% include "auxiliary/hero_image.html" %} {% block content %} {%

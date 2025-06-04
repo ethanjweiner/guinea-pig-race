@@ -28,7 +28,6 @@ def home(_):
 
 def register(request):
     template = loader.get_template("register/index.html")
-    context = {"errors": {}}
 
     if request.method == "POST":
         try:
@@ -46,21 +45,14 @@ def register(request):
             registrant.full_clean()
             registrant.save()
 
-            return redirect("success")
-
-        except ValidationError as e:
-            # Handle validation errors
-            context["errors"] = e.message_dict
-            # Preserve the submitted data
-            context["form_data"] = request.POST
-
-            # TODO: Don't raise validation error, instead render the form with errors
-            raise ValidationError(e)
+            return HttpResponse(template.render({"success": True}, request))
 
         except Exception as e:
-            print("Exception: ", e)
+            print("REGISTRATION ERROR: ", e)
+            return HttpResponse(template.render({"success": False}, request))
 
-    return HttpResponse(template.render(context, request))
+
+    return HttpResponse(template.render({}, request))
 
 
 def awards(request):
