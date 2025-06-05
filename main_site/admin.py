@@ -2,7 +2,7 @@ from django.contrib import admin
 from main_site.models import Result, Registrant
 
 class RegistrantAdmin(admin.ModelAdmin):
-    list_display = ("first_name", "last_name", "email")
+    list_display = ("first_name", "last_name", "seed_time", "email", "gender", "sponsor", "hometown")
     list_filter = ("year",)
 
 class ResultAdmin(admin.ModelAdmin):
