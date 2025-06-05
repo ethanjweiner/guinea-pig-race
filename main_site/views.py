@@ -30,6 +30,17 @@ def register(request):
     template = loader.get_template("register/index.html")
 
     if request.method == "POST":
+        if request.POST["email"] != request.POST["email_confirm"]:
+            return HttpResponse(
+                template.render(
+                    {
+                        "success": False,
+                        "error": "Emails do not match. Please try again.",
+                    },
+                    request,
+                )
+            )
+
         try:
             registrant = Registrant(
                 first_name=request.POST["first_name"],
@@ -49,8 +60,12 @@ def register(request):
 
         except Exception as e:
             print("REGISTRATION ERROR: ", e)
-            return HttpResponse(template.render({"success": False}, request))
-
+            return HttpResponse(
+                template.render(
+                    {"success": False, "error": "There was an error with your registration. Please try again."},
+                    request,
+                )
+            )
 
     return HttpResponse(template.render({}, request))
 
