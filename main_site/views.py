@@ -3,6 +3,7 @@ from django.template import loader
 from main_site.models import Result, Registrant
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
+from main_site.helpers import send_email
 
 
 def index(request):
@@ -55,6 +56,11 @@ def register(request):
 
             registrant.full_clean()
             registrant.save()
+            send_email(
+                "Guinea Pig Mile Registration",
+                loader.get_template("email/index.html").render({"registrant": registrant}),
+                [registrant.email],
+            )
 
             return HttpResponse(template.render({"success": True}, request))
 
