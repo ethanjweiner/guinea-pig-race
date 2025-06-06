@@ -3,7 +3,7 @@ from django.template import loader
 from main_site.models import Result, Registrant
 from django.shortcuts import redirect
 from django.core.exceptions import ValidationError
-
+import boto3
 
 def index(request):
     template = loader.get_template("home/index.html")
@@ -55,6 +55,23 @@ def register(request):
 
             registrant.full_clean()
             registrant.save()
+            email = request.POST["email"]
+
+            client = boto3.client("ses", region_name="us-east-1")
+            client.send_email(
+                Source="racedirector@guineapigmile.com",
+                Destination={"ToAddresses": [email]},
+                Message={
+                    "Subject": {"Data": "Guinea Pig Mile Registration"},
+                    "Body": {
+                        "Html": {
+                            "Data": loader.get_template("email/index.html").render(
+                                {"registrant": registrant}
+                            )
+                        },
+                    },
+                },
+            )
 
             return HttpResponse(template.render({"success": True}, request))
 
