@@ -13,7 +13,6 @@ django-components = "*"
 python-dotenv = "*"
 pytailwindcss = "*"
 gunicorn = "*"
-boto3 = "^1.38.31"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

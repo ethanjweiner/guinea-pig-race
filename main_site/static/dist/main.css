@@ -786,9 +786,6 @@
   .italic {
     font-style: italic;
   }
-  .underline {
-    text-decoration-line: underline;
-  }
   .opacity-80 {
     opacity: 80%;
   }
