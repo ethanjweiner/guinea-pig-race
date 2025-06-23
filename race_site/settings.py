@@ -28,7 +28,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv("SECRET_KEY")
 CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS").split(",")
-SECURE_SSL_REDIRECT = False
+SECURE_SSL_REDIRECT = False # reverse-proxy handles SSL redirects
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 
