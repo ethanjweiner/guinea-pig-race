@@ -1,0 +1,83 @@
+{% extends "admin/base_site.html" %} {% load static %} {% block title %}Email
+Registrants{% endblock %} {% block content %}
+<div id="content-main">
+  <h1>Email Registrants</h1>
+
+  <div class="module">
+    <h2 style="margin-bottom: 20px">
+      Send Email to All Registrants in the Year {{ current_year }}
+    </h2>
+
+    <form method="post" action="">
+      {% csrf_token %}
+      <div class="form-row">
+        <label for="subject">Subject:</label>
+        <input
+          type="text"
+          name="subject"
+          id="subject"
+          required
+          style="width: 100%; padding: 8px; margin: 5px 0"
+        />
+      </div>
+
+      <div class="form-row">
+        <label for="message">Message:</label>
+        <textarea
+          name="message"
+          id="message"
+          rows="10"
+          required
+          style="width: 100%; padding: 8px; margin: 5px 0"
+        ></textarea>
+      </div>
+
+      <div class="form-row">
+        <label>
+          <input type="checkbox" name="send_to_all" value="1" checked />
+          Send to all registrants ({{ registrant_count }} total)
+        </label>
+      </div>
+
+      <div class="submit-row">
+        <input
+          type="submit"
+          value="Send Email"
+          class="default"
+          style="
+            background: #79aec8;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          "
+        />
+      </div>
+    </form>
+  </div>
+
+  {% if message %}
+  <div class="module">
+    <h2>Result</h2>
+    <p>{{ message }}</p>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .form-row {
+    margin-bottom: 15px;
+  }
+  .form-row label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  .submit-row {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+  }
+</style>
+{% endblock %}
