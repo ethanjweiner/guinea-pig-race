@@ -44,7 +44,7 @@ class MyAdminSite(admin.AdminSite):
                     recipient_emails = [r.email for r in registrants]
 
                     # Send email to all registrants
-                    send_email(subject, message_text, recipient_emails)
+                    send_email(subject, message_text, recipient_emails, 'plain')
                     
                     message = f"Email sent successfully to {len(recipient_emails)} registrants!"
                 except Exception as e:

@@ -5,11 +5,11 @@ import os
 sender = os.getenv("EMAIL_SENDER")
 password = os.getenv("EMAIL_PASSWORD")
 
-def send_email(subject, body, recipients):
+def send_email(subject, body, recipients, type="html"):
     """
     Send an email to the given recipients.
     """
-    msg = MIMEText(body, 'html')
+    msg = MIMEText(body, type)
     msg['Subject'] = subject
     msg['From'] = sender
     msg['To'] = ', '.join(recipients)
