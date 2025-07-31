@@ -3,11 +3,14 @@ from main_site.models import Result, Registrant
 from datetime import datetime
 from django.urls import path
 from django.shortcuts import render
+from django.http import HttpResponse
 from main_site.helpers import send_email
+import csv
 
 class RegistrantAdmin(admin.ModelAdmin):
     list_display = ("first_name", "last_name", "seed_time", "email", "gender", "sponsor", "hometown")
     list_filter = ("year",)
+    
 
 class ResultAdmin(admin.ModelAdmin):
     list_display = ("registrant__first_name", "registrant__last_name", "time")
@@ -21,13 +24,54 @@ class MyAdminSite(admin.AdminSite):
         urls = super().get_urls()
         
         urls = [
-            path('email/', self.admin_view(self.email_view), name='email_registrants')
+            path('email/', self.admin_view(self.email_view), name='email_registrants'),
+            path('export/', self.admin_view(self.export_view), name='export_registrants')
         ] + urls
 
-        print("GETTING URLS")
-        print(urls)
-        
         return urls
+    
+    def export_view(self, request):
+        RACE_DAY_FIELDS = ['Heat Number', 'Sticker Number','Unofficial Time', 'Official Time', 'Place', 'Heat Place', 'Division Place']
+
+        current_year = datetime.now().year
+        registrants = Registrant.objects.all().filter(year=current_year)
+        registrants = sorted(registrants, key=lambda x: x.seed_time_seconds)
+        
+        if request.method == 'POST':
+            # Create CSV response
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = f'attachment; filename="registrants_{current_year}.csv"'
+            
+            writer = csv.writer(response)
+            # Write header
+
+            writer.writerow([
+                'First Name', 'Last Name', 'Email', 'Date of Birth', 
+                'Gender', 'Seed Time', 'Sponsor', 'Hometown', 'Year', 'Created At',
+                *RACE_DAY_FIELDS
+            ])
+            
+            # Write data
+            for registrant in registrants:
+                writer.writerow([
+                    registrant.first_name,
+                    registrant.last_name,
+                    registrant.email,
+                    registrant.date_of_birth,
+                    registrant.gender,
+                    registrant.seed_time,
+                    registrant.sponsor or '',
+                    registrant.hometown or '',
+                ])
+            
+            return response
+        
+        context = {
+            'registrant_count': len(registrants),
+            'current_year': current_year,
+        }
+        
+        return render(request, "admin/export_registrants.html", context)
 
     def email_view(self, request):
         current_year = datetime.now().year

@@ -1,0 +1,45 @@
+{% extends "admin/base_site.html" %} {% load static %} {% block title %}Export
+Registrants{% endblock %} {% block content %}
+
+<div id="content-main">
+  <h1>Export Registrants</h1>
+
+  <div class="module">
+    <h2 style="margin-bottom: 20px">
+      Export Registrants for Year {{ current_year }}
+    </h2>
+
+    <p style="margin-bottom: 20px">
+      This will export all {{ registrant_count }} registrants for {{
+      current_year }} as a CSV file.
+    </p>
+
+    <form method="post" action="">
+      {% csrf_token %}
+      <div class="submit-row">
+        <input
+          type="submit"
+          value="Export Registrants"
+          class="default"
+          style="
+            background: #79aec8;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+          "
+        />
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .submit-row {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #eee;
+  }
+</style>
+{% endblock %}

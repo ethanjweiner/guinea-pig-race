@@ -83,6 +83,19 @@ class Registrant(models.Model):
     )
     seed_time = models.CharField(max_length=255, validators=[validate_seed_time])
     sponsor = models.CharField(max_length=255, blank=True, null=True)
+    
+    @property
+    def seed_time_seconds(self):
+        """Convert seed_time to seconds for proper numerical sorting"""
+        if not self.seed_time:
+            return 0
+        try:
+            minutes, seconds = map(int, self.seed_time.split(":"))
+            return minutes * 60 + seconds
+        except (ValueError, AttributeError):
+            return 0
+
+
     year = models.IntegerField(default=timezone.now().year)
     hometown = models.CharField(
         max_length=255,
