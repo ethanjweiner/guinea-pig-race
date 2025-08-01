@@ -3,6 +3,15 @@ Registrants{% endblock %} {% block content %}
 <div id="content-main">
   <h1>Email Registrants</h1>
 
+  <button
+    type="submit"
+    id="copy-registrant-emails-button"
+    onclick="copyRegistrantEmails()"
+    style="margin-bottom: 20px"
+  >
+    Copy Registrant Emails
+  </button>
+
   <div class="module">
     <h2 style="margin-bottom: 20px">
       Send Email to All Registrants in the Year {{ current_year }}
@@ -64,6 +73,20 @@ Registrants{% endblock %} {% block content %}
   </div>
   {% endif %}
 </div>
+
+<script>
+  function copyRegistrantEmails() {
+    const button = document.getElementById("copy-registrant-emails-button");
+    button.disabled = true;
+    fetch("/admin/copy-registrant-emails", {
+      method: "GET",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        navigator.clipboard.writeText(data.join(", "));
+      });
+  }
+</script>
 
 <style>
   .form-row {

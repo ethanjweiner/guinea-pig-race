@@ -1,5 +1,6 @@
 from django.contrib import admin
 from main_site.models import Result, Registrant
+import json
 from datetime import datetime
 from django.urls import path
 from django.shortcuts import render
@@ -25,17 +26,18 @@ class MyAdminSite(admin.AdminSite):
         
         urls = [
             path('email/', self.admin_view(self.email_view), name='email_registrants'),
-            path('export/', self.admin_view(self.export_view), name='export_registrants')
+            path('export/', self.admin_view(self.export_view), name='export_registrants'),
+            path('copy-registrant-emails', self.admin_view(self.copy_registrant_emails_view), name='copy_registrant_emails'),
         ] + urls
 
         return urls
     
     def export_view(self, request):
-        RACE_DAY_FIELDS = ['Heat Number', 'Sticker Number','Unofficial Time', 'Official Time', 'Place', 'Heat Place', 'Division Place']
+        RACE_DAY_FIELDS = ['Heat Number', 'Sticker Number', 'Unofficial Time', 'Official Time', 'Place', 'Heat Place', 'Division Place']
 
         current_year = datetime.now().year
         registrants = Registrant.objects.all().filter(year=current_year)
-        registrants = sorted(registrants, key=lambda x: x.seed_time_seconds)
+        registrants = sorted(registrants, key=lambda x: x.seed_time_seconds, reverse=True)
         
         if request.method == 'POST':
             # Create CSV response
@@ -47,7 +49,7 @@ class MyAdminSite(admin.AdminSite):
 
             writer.writerow([
                 'First Name', 'Last Name', 'Email', 'Date of Birth', 
-                'Gender', 'Seed Time', 'Sponsor', 'Hometown', 'Year', 'Created At',
+                'Gender', 'Seed Time', 'Sponsor', 'Hometown',
                 *RACE_DAY_FIELDS
             ])
             
@@ -73,10 +75,17 @@ class MyAdminSite(admin.AdminSite):
         
         return render(request, "admin/export_registrants.html", context)
 
+    def copy_registrant_emails_view(self, request):
+        current_year = datetime.now().year
+        registrants = Registrant.objects.all().filter(year=current_year)
+        emails = [r.email for r in registrants]
+        return HttpResponse(json.dumps(emails), content_type='application/json', status=200)
+
     def email_view(self, request):
         current_year = datetime.now().year
         registrants = Registrant.objects.all().filter(year=current_year)
         message = None
+
         
         if request.method == 'POST':
             subject = request.POST.get('subject')
