@@ -131,7 +131,7 @@ class Result(models.Model):
     registrant = models.ForeignKey(Registrant, on_delete=models.CASCADE)
     time = models.CharField(max_length=255)
     dnf = models.BooleanField(default=False)
-    year = models.IntegerField()
+    year = models.IntegerField(default=timezone.now().year)
 
     @property
     def time_seconds(self):
