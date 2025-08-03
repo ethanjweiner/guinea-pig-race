@@ -12,10 +12,6 @@ class RegistrantAdmin(admin.ModelAdmin):
     list_display = ("first_name", "last_name", "seed_time", "email", "gender", "sponsor", "hometown")
     list_filter = ("year",)
 
-    def __str__(self):
-        return f"{self.first_name} {self.last_name} {self.year}"
-    
-
 class ResultAdmin(admin.ModelAdmin):
     list_display = ("registrant__first_name", "registrant__last_name", "time")
 
