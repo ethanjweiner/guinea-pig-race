@@ -13,7 +13,7 @@ class Result(Component):
     template_file = "result.html"
 
     def get_context_data(self, result: ResultModel):
-        color = PLACE_TO_COLOR.get(result.overall_place, None)
+        color = PLACE_TO_COLOR.get(result.gender_place, None)
 
         return {
             "place": result.overall_place,
@@ -21,4 +21,5 @@ class Result(Component):
             "time": result.time,
             "dnf": result.dnf,
             "color": color,
+            "gender_place": result.gender_place,
         }

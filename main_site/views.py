@@ -12,6 +12,7 @@ def index(request):
     men_results = list(Result.objects.filter(registrant__gender="male", year=2025))
     men_results.sort(key=lambda x: (x.dnf, x.time_seconds))
     men_results = men_results[:5]
+
     
     women_results = list(Result.objects.filter(registrant__gender="female", year=2025))
     women_results.sort(key=lambda x: (x.dnf, x.time_seconds))

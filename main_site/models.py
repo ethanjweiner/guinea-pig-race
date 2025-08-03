@@ -20,7 +20,6 @@ def validate_seed_time(value):
 
 def validate_gender(value):
     """Validate gender choice"""
-    print("validating gender")
     if value not in [choice[0] for choice in Registrant.GENDER_CHOICES]:
         raise ValidationError("Please select a valid gender option.")
 
@@ -151,6 +150,6 @@ class Result(models.Model):
 
     @property
     def gender_place(self):
-        results = Result.objects.filter(year=self.year)
+        results = Result.objects.filter(year=self.year, registrant__gender=self.registrant.gender)
         results = sorted(results, key=lambda x: x.time_seconds)
         return results.index(self) + 1
