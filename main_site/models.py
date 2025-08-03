@@ -129,8 +129,28 @@ class Registrant(models.Model):
 
 class Result(models.Model):
     registrant = models.ForeignKey(Registrant, on_delete=models.CASCADE)
-    overall_place = models.IntegerField(null=True)
-    gender_place = models.IntegerField(null=True)
     time = models.CharField(max_length=255)
     dnf = models.BooleanField(default=False)
     year = models.IntegerField()
+
+    @property
+    def time_seconds(self):
+        if "." in self.time:
+            time_part, deciseconds = self.time.split(".")
+            minutes, seconds = map(int, time_part.split(":"))
+            return minutes * 60 + seconds + int(deciseconds) / 10
+        else:
+            minutes, seconds = map(int, self.time.split(":"))
+            return minutes * 60 + seconds
+
+    @property
+    def overall_place(self):
+        results = Result.objects.filter(year=self.year)
+        results = sorted(results, key=lambda x: x.time_seconds)
+        return results.index(self) + 1
+
+    @property
+    def gender_place(self):
+        results = Result.objects.filter(year=self.year)
+        results = sorted(results, key=lambda x: x.time_seconds)
+        return results.index(self) + 1
