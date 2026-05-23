@@ -1,6 +1,6 @@
 # The Guinea Pig Mile
 
-Welcome to The Guinea Pig Mile. 4 laps. 1609 meters. A race so beautiful it’ll make you believe in a higher power, and so painful it’ll make you pray to one.
+1609 meters. Purity of competition. Friendship. Love. The Guinea Pig Mile
 
 ## Running this App in Development
 

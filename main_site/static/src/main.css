@@ -66,6 +66,9 @@
 
 .home-page {
   --site-nav-height: 7.5rem;
+  --home-track-height: 0rem;
+  --home-hero-padding-top: clamp(2.5rem, 4vw, 4rem);
+  --home-hero-padding-bottom: clamp(1.5rem, 3vw, 3rem);
   background: rgb(15 23 42);
 }
 
@@ -87,15 +90,15 @@
 
 .home-hero-section {
   position: relative;
-  padding: clamp(2.5rem, 4vw, 4rem) clamp(0.75rem, 2vw, 2rem)
-    clamp(1.5rem, 3vw, 3rem);
+  padding: var(--home-hero-padding-top) clamp(0.75rem, 2vw, 2rem)
+    var(--home-hero-padding-bottom);
 }
 
 .home-hero-section__stage {
   position: relative;
   z-index: 1;
   display: flex;
-  width: min(100%, 108rem);
+  width: min(100%, 148vh);
   justify-content: center;
 }
 
@@ -162,6 +165,64 @@
     0 0 2rem rgb(0 0 0 / 0.75),
     0 1.5rem 3.5rem rgb(0 0 0 / 0.6),
     inset 0 0 0 1px rgb(255 255 255 / 0.14);
+}
+
+@media (min-width: 64rem) {
+  .home-page {
+    --site-nav-height: 2.75rem;
+    --site-nav-width-budget: 4.125rem;
+    --home-track-height: clamp(5.5rem, 11vh, 7.5rem);
+    --home-track-width-budget: clamp(8.25rem, 16.5vh, 11.25rem);
+    --home-hero-padding-top-width-budget: clamp(3.75rem, 6vw, 6rem);
+    --home-hero-padding-bottom-width-budget: clamp(2.25rem, 4.5vw, 4.5rem);
+  }
+
+  .home-page > .flex {
+    height: 100vh;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .home-page .site-nav {
+    flex: 0 0 var(--site-nav-height);
+    height: var(--site-nav-height);
+  }
+
+  .home-page .page-content {
+    min-height: 0;
+  }
+
+  .home-hero-section {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: calc(100vh - var(--site-nav-height) - var(--home-track-height));
+  }
+
+  .home-hero-section__stage,
+  .home-hero-section .hero-carousel {
+    width: min(
+      100%,
+      148vh,
+      calc(
+        150vh - var(--site-nav-width-budget) -
+          var(--home-track-width-budget) -
+          var(--home-hero-padding-top-width-budget) -
+          var(--home-hero-padding-bottom-width-budget)
+      )
+    );
+  }
+
+  .home-bottom-track {
+    display: flex;
+    align-items: flex-end;
+    flex: 0 0 var(--home-track-height);
+    height: var(--home-track-height);
+    overflow: hidden;
+  }
+
+  .home-bottom-track > .relative {
+    width: 100%;
+  }
 }
 
 @media (max-width: 63.999rem) {
