@@ -156,7 +156,7 @@
   width: 100%;
   border: 0;
   border-radius: 0.875rem;
-  background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+  background: linear-gradient(135deg, rgb(15 23 42) 0%, rgb(30 41 59) 100%);
   box-shadow:
     0 0 0.75rem rgb(0 0 0 / 0.85),
     0 0 2rem rgb(0 0 0 / 0.75),
