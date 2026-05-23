@@ -119,6 +119,31 @@ To pull the latest git changes first:
 ./scripts/restart_prod.sh --pull
 ```
 
+Static assets flow through two separate locations: the repo build output and
+the directory Nginx serves in production.
+
+```mermaid
+flowchart TD
+    A[Edit source CSS<br/>main_site/static/src/main.css] --> B[Build Tailwind<br/>poetry run tailwindcss -i ./main_site/static/src/main.css -o ./main_site/static/dist/main.css]
+    B --> C[Repo dist file<br/>main_site/static/dist/main.css]
+    C --> D[Collect static<br/>poetry run python manage.py collectstatic --noinput --clear]
+    D --> E[Production static root<br/>/var/static/dist/main.css]
+    E --> F[Nginx serves CSS<br/>/static/dist/main.css]
+
+    G[Edit templates or Python] --> H[Restart Gunicorn<br/>sudo systemctl restart guinea-pig-race]
+    H --> I[Gunicorn serves HTML<br/>Django templates and views]
+    I --> J[Browser requests CSS URL]
+    J --> F
+
+    K[./scripts/restart_prod.sh] --> B
+    K --> D
+    K --> H
+```
+
+If the site is serving stale CSS, check `/var/static/dist/main.css`, not only
+`main_site/static/dist/main.css`. Nginx serves the `/var/static` copy directly;
+Gunicorn only serves the HTML that links to it.
+
 Start the app server with Gunicorn:
 
 ```sh
