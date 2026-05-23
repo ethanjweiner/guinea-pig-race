@@ -106,6 +106,19 @@ sudo chown -R "$USER":www-data /var/static
 poetry run python manage.py collectstatic --noinput
 ```
 
+After deploying CSS, template, or Python changes, rebuild static files and restart
+Gunicorn:
+
+```sh
+./scripts/restart_prod.sh
+```
+
+To pull the latest git changes first:
+
+```sh
+./scripts/restart_prod.sh --pull
+```
+
 Start the app server with Gunicorn:
 
 ```sh
