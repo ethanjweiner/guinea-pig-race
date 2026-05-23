@@ -1,33 +1,19 @@
-{% extends "base.html" %} {% block content %} {% load static %}
+{% extends "base.html" %}
+{% block body_class %}home-page{% endblock body_class %}
 
-<!-- DESKTOP -->
-<div class="bg-slate-900 relative z-0 hidden flex-1 overflow-visible lg:flex">
-  <div
-    class="md:flex-2 relative flex w-full flex-1 flex-col justify-center xl:flex-1"
-  >
-    {% include "home/welcome_blurb.html" %}
-  </div>
-  <div class="md:flex-3 xl:flex-2 flex items-center">
-    <div
-      class="from-red-700 to-yellow-500 p-15 relative flex h-full flex-1 items-center justify-center bg-gradient-to-tl"
-    >
-      {% include "auxiliary/results_container.html" with year=2025
-      show_view_all_results_button=True %}
+{% block hero_media %}
+<div class="hero-section home-hero-section bg-slate-900 relative shrink-0">
+  <div class="home-hero-section__stage">
+    {% include "auxiliary/image_carousel.html" %}
+    <div class="home-hero-section__welcome">
+      {% include "home/welcome_blurb.html" %}
     </div>
   </div>
 </div>
-<!-- MOBILE -->
-<div class="lg:hidden">
-  <div
-    class="bg-slate-900 relative z-0 flex flex-1 flex-col overflow-y-hidden py-20"
-  >
-    {% include "home/welcome_blurb.html" %}
-  </div>
-  <div
-    class="from-red-700 to-yellow-500 relative flex flex-1 items-center justify-center bg-gradient-to-tl p-4 pb-10 lg:p-8"
-  >
-    {% include "auxiliary/results_container.html" with year=2025
-    show_view_all_results_button=True %}
-  </div>
+{% endblock hero_media %}
+
+{% block content %}
+<div class="home-bottom-track">
+{% include "auxiliary/bottom_track.html" %}
 </div>
-{% include "auxiliary/bottom_track.html" %} {% endblock content %}
+{% endblock content %}

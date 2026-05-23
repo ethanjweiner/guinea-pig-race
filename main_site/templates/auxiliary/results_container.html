@@ -1,10 +1,48 @@
 <div
-  class="bg-slate-700 custom-shadow relative flex max-h-full w-full flex-col overflow-hidden rounded-lg p-3 pr-2"
+  class="from-orange-500 via-orange-700 to-red-900 custom-shadow relative flex max-h-full w-full flex-col overflow-hidden rounded-lg bg-gradient-to-br p-3 pr-2"
 >
   <div class="flex-1 overflow-y-auto p-5 pb-10 pr-4">
-    <h1 class="text-white font-race mb-4 block text-2xl font-bold uppercase">
-      {{ year }} Results
-    </h1>
+    <div class="mb-4 flex items-center gap-3">
+      {% if show_year_navigation %}
+        {% if previous_year %}
+          <a
+            href="/results?year={{ previous_year }}"
+            class="text-white flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/80 bg-black/20 hover:bg-black/35"
+            aria-label="View {{ previous_year }} results"
+          >
+            <i class="fa-solid fa-chevron-left"></i>
+          </a>
+        {% else %}
+          <span
+            class="text-white/40 flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full border-2 border-white/30 bg-black/10"
+            aria-label="No previous results year"
+          >
+            <i class="fa-solid fa-chevron-left"></i>
+          </span>
+        {% endif %}
+      {% endif %}
+      <h1 class="text-white font-race block text-2xl font-bold uppercase">
+        {% if year %}{{ year }} Results{% else %}Results{% endif %}
+      </h1>
+      {% if show_year_navigation %}
+        {% if next_year %}
+          <a
+            href="/results?year={{ next_year }}"
+            class="text-white flex h-8 w-8 items-center justify-center rounded-full border-2 border-white/80 bg-black/20 hover:bg-black/35"
+            aria-label="View {{ next_year }} results"
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </a>
+        {% else %}
+          <span
+            class="text-white/40 flex h-8 w-8 cursor-not-allowed items-center justify-center rounded-full border-2 border-white/30 bg-black/10"
+            aria-label="No future results year"
+          >
+            <i class="fa-solid fa-chevron-right"></i>
+          </span>
+        {% endif %}
+      {% endif %}
+    </div>
     <div
       class="from-transparent via-white to-transparent w-75 mb-5 h-1 bg-gradient-to-r via-40%"
     ></div>

@@ -36,6 +36,23 @@ SESSION_COOKIE_SECURE = True
 DEBUG = os.getenv("PRODUCTION") == "false"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS").split(",")
 
+TEMPLATE_LOADERS = [
+    # Default Django loader
+    "django.template.loaders.filesystem.Loader",
+    # Including this is the same as APP_DIRS=True
+    "django.template.loaders.app_directories.Loader",
+    # Components loader
+    "django_components.template_loader.Loader",
+]
+
+if not DEBUG:
+    TEMPLATE_LOADERS = [
+        (
+            "django.template.loaders.cached.Loader",
+            TEMPLATE_LOADERS,
+        )
+    ]
+
 
 # Application definition
 
@@ -72,20 +89,9 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                "main_site.context_processors.carousel_images",
             ],
-            "loaders": [
-                (
-                    "django.template.loaders.cached.Loader",
-                    [
-                        # Default Django loader
-                        "django.template.loaders.filesystem.Loader",
-                        # Including this is the same as APP_DIRS=True
-                        "django.template.loaders.app_directories.Loader",
-                        # Components loader
-                        "django_components.template_loader.Loader",
-                    ],
-                )
-            ],
+            "loaders": TEMPLATE_LOADERS,
             "builtins": [
                 "django_components.templatetags.component_tags",
             ],

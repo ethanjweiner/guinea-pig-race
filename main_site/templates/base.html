@@ -21,15 +21,13 @@
     <link rel="stylesheet" href="{% static 'dist/main.css' %}" />
     <title>Guinea Pig 1 Mile</title>
   </head>
-  <body>
-    <div class="flex h-screen flex-col overflow-hidden">
+  <body class="bg-slate-900 {% block body_class %}{% endblock body_class %}">
+    <div class="bg-slate-900 flex min-h-screen flex-col">
       {% include "auxiliary/top_nav.html" %}
-      <div
-        class="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden"
-      >
+      <div class="page-content bg-slate-900 relative flex flex-1 flex-col overflow-x-hidden">
         <div class="lg:hidden">{% include "auxiliary/mobile_nav.html" %}</div>
-        {% include "auxiliary/hero_image.html" %} {% block content %} {%
-        endblock content %}
+        {% block hero_media %}{% endblock hero_media %}
+        {% block content %} {% endblock content %}
       </div>
     </div>
     <script src="{% static 'src/index.js' %}"></script>

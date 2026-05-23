@@ -24,6 +24,18 @@ def validate_gender(value):
         raise ValidationError("Please select a valid gender option.")
 
 
+def current_year():
+    return timezone.now().year
+
+
+def current_date():
+    return timezone.now().date()
+
+
+def earliest_birth_date():
+    return current_date().replace(year=current_year() - 100)
+
+
 class Registrant(models.Model):
     GENDER_CHOICES = [
         ("male", "Male"),
@@ -35,7 +47,7 @@ class Registrant(models.Model):
         max_length=255,
         validators=[
             RegexValidator(
-                regex="^[a-zA-Z\s\-]+$",
+                regex=r"^[a-zA-Z\s\-]+$",
                 message="First name can only contain letters, spaces, and hyphens",
             )
         ],
@@ -44,7 +56,7 @@ class Registrant(models.Model):
         max_length=255,
         validators=[
             RegexValidator(
-                regex="^[a-zA-Z\s\-]+$",
+                regex=r"^[a-zA-Z\s\-]+$",
                 message="Last name can only contain letters, spaces, and hyphens",
             )
         ],
@@ -53,7 +65,7 @@ class Registrant(models.Model):
         max_length=255,
         validators=[
             RegexValidator(
-                regex="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+                regex=r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
                 message="Please enter a valid email address",
             )
         ],
@@ -62,13 +74,11 @@ class Registrant(models.Model):
         null=True,
         validators=[
             MinValueValidator(
-                limit_value=timezone.now()
-                .date()
-                .replace(year=timezone.now().year - 100),
+                limit_value=earliest_birth_date,
                 message="Date of birth cannot be more than 100 years ago",
             ),
             MaxValueValidator(
-                limit_value=timezone.now().date(),
+                limit_value=current_date,
                 message="Date of birth cannot be in the future",
             ),
         ],
@@ -95,14 +105,14 @@ class Registrant(models.Model):
             return 0
 
 
-    year = models.IntegerField(default=timezone.now().year)
+    year = models.IntegerField(default=current_year)
     hometown = models.CharField(
         max_length=255,
         blank=True,
         null=True,
         validators=[
             RegexValidator(
-                regex="^[a-zA-Z\s\-\.,]+$",
+                regex=r"^[a-zA-Z\s\-\.,]+$",
                 message="Hometown can only contain letters, spaces, hyphens, periods, and commas",
             )
         ],
@@ -130,26 +140,34 @@ class Result(models.Model):
     registrant = models.ForeignKey(Registrant, on_delete=models.CASCADE)
     time = models.CharField(max_length=255)
     dnf = models.BooleanField(default=False)
-    year = models.IntegerField(default=timezone.now().year)
+    year = models.IntegerField(default=current_year)
 
     @property
     def time_seconds(self):
+        if self.dnf or not self.time:
+            return float("inf")
+
         if "." in self.time:
-            time_part, deciseconds = self.time.split(".")
+            time_part, fraction = self.time.split(".", 1)
             minutes, seconds = map(int, time_part.split(":"))
-            return minutes * 60 + seconds + int(deciseconds) / 10
-        else:
-            minutes, seconds = map(int, self.time.split(":"))
-            return minutes * 60 + seconds
+            return minutes * 60 + seconds + float(f"0.{fraction}")
+
+        parts = self.time.split(":")
+        if len(parts) == 3:
+            minutes, seconds, fraction = parts
+            return int(minutes) * 60 + int(seconds) + float(f"0.{fraction}")
+
+        minutes, seconds = map(int, parts)
+        return minutes * 60 + seconds
 
     @property
     def overall_place(self):
         results = Result.objects.filter(year=self.year)
-        results = sorted(results, key=lambda x: x.time_seconds)
+        results = sorted(results, key=lambda x: (x.dnf, x.time_seconds))
         return results.index(self) + 1
 
     @property
     def gender_place(self):
         results = Result.objects.filter(year=self.year, registrant__gender=self.registrant.gender)
-        results = sorted(results, key=lambda x: x.time_seconds)
+        results = sorted(results, key=lambda x: (x.dnf, x.time_seconds))
         return results.index(self) + 1

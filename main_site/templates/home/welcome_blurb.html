@@ -4,35 +4,40 @@
 >
   <img
     src="{% static 'images/uncle_sam.png' %}"
-    class="uncle-sam z-100 -top-17 lg:-top-35 w-25 lg:w-35 absolute -right-5 lg:-right-10"
+    class="uncle-sam z-100 w-25 lg:w-35 absolute -right-5 -top-12 lg:-right-10 lg:-top-24"
   />
   <h1 class="text-white font-fast mb-4 block text-4xl font-bold">Welcome.</h1>
   <p class="text-white font-tech mb-4 block text-lg">
-    "The Guinea Pig Mile. 4 laps. 1609 meters. A race so beautiful it’ll make you
-    believe in a higher power, and so painful it’ll make you pray to one."
+    "The Guinea Pig Mile. 4 laps. 1609 meters. A race so beautiful it’ll make
+    you believe in a higher power, and so painful it’ll make you pray to one."
   </p>
   <div
     class="from-transparent via-white to-transparent mb-5 h-0.5 w-full bg-gradient-to-r via-20%"
   ></div>
-  <ul class="text-white font-tech mb-3 block list-inside list-decimal text-lg">
-    <li>LOCATION:
-      <span class="font-extrabold"
-        >The Track at Danehy Park, Cambridge</span
-      >
+  <ul class="text-white font-tech mb-6 block list-inside list-decimal text-lg">
+    <li>
+      LOCATION:
+      <span class="font-extrabold">The Track at Danehy Park, Cambridge</span>
     </li>
-    <li>DATE: <span class="font-extrabold">Saturday, August 2nd, 2025</span>
+    <li>
+      DATE: <span class="font-extrabold">Saturday, August 1st, 2026</span>
     </li>
-    <li>TIME: <span class="font-extrabold">6:30 PM</span></li>
+    <li>&nbsp;TIME: <span class="font-extrabold">6:00 PM</span></li>
   </ul>
-  <p class="text-white font-tech mb-8 block text-lg italic">
-    Please anticipate the event to take several hours. BYOS (Bring Your Own
-    Snacks). Water and Gatorade will be provided.
-  </p>
-  <a
-    href="{% url 'register' %}"
-    class="from-yellow-500 to-yellow-200 text-black rounded-4xl font-race flex w-fit cursor-pointer items-center gap-2 bg-gradient-to-r px-6 py-3 text-2xl uppercase shadow-xl"
-  >
-    Register
-    <img src="{% static 'images/register.png' %}" class="w-8 invert" />
-  </a>
+  <div class="flex flex-wrap items-center gap-4">
+    <a
+      href="{% url 'register' %}"
+      class="from-yellow-500 to-yellow-200 text-black rounded-4xl font-race flex w-fit cursor-pointer items-center gap-2 bg-gradient-to-r px-6 py-3 text-xl uppercase shadow-xl"
+    >
+      Register
+      <img src="{% static 'images/register.png' %}" class="w-8 invert" />
+    </a>
+    <a
+      href="#"
+      class="bg-white text-black rounded-4xl font-race flex w-fit cursor-pointer items-center gap-2 whitespace-nowrap px-5 py-3 text-xl uppercase shadow-xl lg:px-6"
+    >
+      Watch the Promo
+      <i class="fa-solid fa-circle-play text-2xl" aria-hidden="true"></i>
+    </a>
+  </div>
 </div>

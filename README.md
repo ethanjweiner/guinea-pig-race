@@ -40,6 +40,22 @@ poetry run python manage.py runserver
 
 Visit the app at `http://localhost:8000`.
 
+### Running with Docker Compose
+
+Build and start the development server:
+
+```sh
+docker compose up --build
+```
+
+The app will be available at `http://localhost:8000`. Compose bind-mounts the project into the container, runs migrations on startup, starts Tailwind in watch mode, and starts Django on `0.0.0.0:8000`.
+
+To also run the seed command on startup, set `SEED_DATABASE=true`:
+
+```sh
+SEED_DATABASE=true docker compose up --build
+```
+
 ## Seeding Data
 
 ```sh

@@ -1,0 +1,14 @@
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      PRODUCTION: "false"
+      SECRET_KEY: "dev-secret-key"
+      ALLOWED_HOSTS: "localhost,127.0.0.1,0.0.0.0"
+      CSRF_TRUSTED_ORIGINS: "http://localhost:8000,http://127.0.0.1:8000"
+      SEED_DATABASE: "${SEED_DATABASE:-false}"
+    volumes:
+      - .:/app
+    command: ./scripts/docker-dev.sh

@@ -1,11 +1,7 @@
 {% load static %}
-<div class="relative">
-  <img
-    src="{% static 'images/main.jpg' %}"
-    class="max-h-75 w-screen object-cover object-top"
-  />
+<div class="hero-section bg-slate-900 relative shrink-0">
+  {% include "auxiliary/image_carousel.html" %}
   <div
     class="from-black to-transparent absolute inset-0 top-1/2 bg-gradient-to-t opacity-80"
   ></div>
-  {% include "auxiliary/flames.html" %}
 </div>

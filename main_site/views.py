@@ -9,20 +9,7 @@ from main_site.helpers import send_email
 def index(request):
     template = loader.get_template("home/index.html")
 
-    men_results = list(Result.objects.filter(registrant__gender="male", year=2025))
-    men_results.sort(key=lambda x: (x.dnf, x.time_seconds))
-    men_results = men_results[:5]
-
-    
-    women_results = list(Result.objects.filter(registrant__gender="female", year=2025))
-    women_results.sort(key=lambda x: (x.dnf, x.time_seconds))
-    women_results = women_results[:5]
-
-    return HttpResponse(
-        template.render(
-            {"men_results": men_results, "women_results": women_results}, request
-        )
-    )
+    return HttpResponse(template.render({}, request))
 
 
 def home(_):
@@ -83,20 +70,54 @@ def awards(request):
     return HttpResponse(template.render({}, request))
 
 
-# TODO: Iterate by year
 def results(request):
     template = loader.get_template("results/index.html")
+    available_years = list(Result.objects.order_by("year").values_list("year", flat=True).distinct())
+
+    if not available_years:
+        return HttpResponse(
+            template.render(
+                {
+                    "year": None,
+                    "men_results": [],
+                    "women_results": [],
+                    "previous_year": None,
+                    "next_year": None,
+                },
+                request,
+            )
+        )
+
+    requested_year = request.GET.get("year")
+    try:
+        year = int(requested_year) if requested_year else available_years[-1]
+    except ValueError:
+        year = available_years[-1]
+
+    if year not in available_years:
+        year = available_years[-1]
+
+    year_index = available_years.index(year)
+    previous_year = available_years[year_index - 1] if year_index > 0 else None
+    next_year = available_years[year_index + 1] if year_index < len(available_years) - 1 else None
 
     # Get all results and sort in Python
-    men_results = list(Result.objects.filter(registrant__gender="male", year=2025))
+    men_results = list(Result.objects.filter(registrant__gender="male", year=year))
     men_results.sort(key=lambda x: (x.dnf, x.time_seconds))
     
-    women_results = list(Result.objects.filter(registrant__gender="female", year=2025))
+    women_results = list(Result.objects.filter(registrant__gender="female", year=year))
     women_results.sort(key=lambda x: (x.dnf, x.time_seconds))
 
     return HttpResponse(
         template.render(
-            {"men_results": men_results, "women_results": women_results}, request
+            {
+                "year": year,
+                "men_results": men_results,
+                "women_results": women_results,
+                "previous_year": previous_year,
+                "next_year": next_year,
+            },
+            request,
         )
     )
 
