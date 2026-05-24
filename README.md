@@ -1,6 +1,6 @@
 # The Guinea Pig Mile
 
-1609 meters. Purity of competition. Friendship. Love. The Guinea Pig Mile
+Purity of competition. Friendship. Love. The Guinea Pig Mile
 
 ## Running this App in Development
 

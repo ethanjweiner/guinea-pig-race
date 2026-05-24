@@ -12,7 +12,7 @@ if [[ "${1:-}" == "--pull" ]]; then
 fi
 
 echo "Building Tailwind CSS"
-poetry run tailwindcss -i ./main_site/static/src/main.css -o ./main_site/static/dist/main.css
+poetry run tailwindcss build -i ./main_site/static/src/main.css -o ./main_site/static/dist/main.css
 
 echo "Collecting static files"
 poetry run python manage.py collectstatic --noinput
