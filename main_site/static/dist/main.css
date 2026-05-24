@@ -290,9 +290,6 @@
   .mx-auto {
     margin-inline: auto;
   }
-  .-mt-1 {
-    margin-top: calc(var(--spacing) * -1);
-  }
   .mt-2 {
     margin-top: calc(var(--spacing) * 2);
   }
@@ -836,9 +833,6 @@
   .text-yellow-300 {
     color: var(--color-yellow-300);
   }
-  .text-yellow-500 {
-    color: var(--color-yellow-500);
-  }
   .uppercase {
     text-transform: uppercase;
   }
@@ -1093,7 +1087,6 @@
   min-height: calc(100vh - var(--site-nav-height));
   align-items: center;
   justify-content: center;
-  box-shadow: 0 1rem 2.5rem rgb(0 0 0 / 0.4), inset 0 0 0 1px rgb(255 255 255 / 0.08);
 }
 .home-hero-section {
   position: relative;

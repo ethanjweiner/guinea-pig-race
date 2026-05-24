@@ -83,9 +83,6 @@
   min-height: calc(100vh - var(--site-nav-height));
   align-items: center;
   justify-content: center;
-  box-shadow:
-    0 1rem 2.5rem rgb(0 0 0 / 0.4),
-    inset 0 0 0 1px rgb(255 255 255 / 0.08);
 }
 
 .home-hero-section {
