@@ -17,7 +17,7 @@ def _carousel_images():
         for image in carousel_dir.iterdir()
         if image.is_file() and image.suffix.lower() in image_extensions
     ]
-    images.sort(key=lambda image: (image.name.lower() != "main.jpg", image.name.lower()))
+    images.sort(key=lambda image: image.name.lower())
 
     return [f"images/carousel/{image.name}" for image in images]
 
