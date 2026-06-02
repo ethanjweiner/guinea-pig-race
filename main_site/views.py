@@ -30,6 +30,16 @@ def register(request):
                     request,
                 )
             )
+        if request.POST.get("liability_release") != "on":
+            return HttpResponse(
+                template.render(
+                    {
+                        "success": False,
+                        "error": "Please acknowledge the event disclaimer to register.",
+                    },
+                    request,
+                )
+            )
 
         try:
             registrant = Registrant(
