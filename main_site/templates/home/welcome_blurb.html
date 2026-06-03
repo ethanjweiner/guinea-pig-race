@@ -32,12 +32,55 @@
       Register
       <img src="{% static 'images/register.png' %}" class="w-8 invert" />
     </a>
-    <a
-      href="#"
+    <button
+      type="button"
+      data-promo-open
       class="from-orange-500 via-orange-700 to-red-900 text-white rounded-4xl font-race flex w-fit cursor-pointer items-center gap-2 whitespace-nowrap bg-gradient-to-br px-5 py-3 text-xl uppercase shadow-xl lg:px-6"
     >
       Watch the Promo
       <i class="fa-solid fa-circle-play text-2xl" aria-hidden="true"></i>
-    </a>
+    </button>
+  </div>
+</div>
+
+<div
+  id="promo-modal"
+  class="promo-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="promo-modal-title"
+  aria-hidden="true"
+  data-promo-modal
+>
+  <button
+    type="button"
+    class="promo-modal__backdrop"
+    aria-label="Close promo video"
+    data-promo-close
+  ></button>
+  <div class="promo-modal__panel" role="document">
+    <div class="promo-modal__header">
+      <h2 id="promo-modal-title" class="font-race text-white text-xl uppercase">
+        Promo
+      </h2>
+      <button
+        type="button"
+        class="promo-modal__close"
+        aria-label="Close promo video"
+        data-promo-close
+      >
+        <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+      </button>
+    </div>
+    <div class="promo-modal__video">
+      <iframe
+        data-promo-iframe
+        title="YouTube video player"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        referrerpolicy="strict-origin-when-cross-origin"
+        allowfullscreen
+      ></iframe>
+    </div>
   </div>
 </div>

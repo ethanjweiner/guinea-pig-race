@@ -88,3 +88,52 @@ document.querySelectorAll("[data-carousel]").forEach((carousel) => {
   showSlide(activeIndex);
   startAutoplay();
 });
+
+const promoModal = document.querySelector("[data-promo-modal]");
+const promoOpenButton = document.querySelector("[data-promo-open]");
+const promoCloseButtons = document.querySelectorAll("[data-promo-close]");
+const promoIframe = document.querySelector("[data-promo-iframe]");
+const promoVideoSrc =
+  "https://www.youtube.com/embed/hZIlnkw1e-U?si=kAMxLV6mhkVIrjoc&autoplay=1";
+const promoAnimationMs = 180;
+let promoPreviouslyFocused;
+let promoCloseTimer;
+
+if (promoModal && promoOpenButton && promoIframe) {
+  const openPromoModal = () => {
+    window.clearTimeout(promoCloseTimer);
+    promoPreviouslyFocused = document.activeElement;
+    promoIframe.src = promoVideoSrc;
+    promoModal.classList.remove("is-closing");
+    promoModal.classList.add("is-open");
+    promoModal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("promo-modal-open");
+    promoModal.querySelector("[data-promo-close]")?.focus();
+  };
+
+  const closePromoModal = () => {
+    promoModal.setAttribute("aria-hidden", "true");
+    promoModal.classList.add("is-closing");
+
+    promoCloseTimer = window.setTimeout(() => {
+      promoIframe.removeAttribute("src");
+      promoModal.classList.remove("is-open", "is-closing");
+      document.body.classList.remove("promo-modal-open");
+
+      if (promoPreviouslyFocused instanceof HTMLElement) {
+        promoPreviouslyFocused.focus();
+      }
+    }, promoAnimationMs);
+  };
+
+  promoOpenButton.addEventListener("click", openPromoModal);
+  promoCloseButtons.forEach((button) => {
+    button.addEventListener("click", closePromoModal);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && promoModal.classList.contains("is-open")) {
+      closePromoModal();
+    }
+  });
+}

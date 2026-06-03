@@ -1171,6 +1171,105 @@
   background: linear-gradient(135deg, rgb(15 23 42) 0%, rgb(30 41 59) 100%);
   box-shadow: 0 0 0.75rem rgb(0 0 0 / 0.85), 0 0 2rem rgb(0 0 0 / 0.75), 0 1.5rem 3.5rem rgb(0 0 0 / 0.6), inset 0 0 0 1px rgb(255 255 255 / 0.14);
 }
+body.promo-modal-open {
+  overflow: hidden;
+}
+.promo-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.5rem, 2vw, 1.5rem);
+}
+.promo-modal.is-open {
+  display: flex;
+}
+.promo-modal.is-closing {
+  pointer-events: none;
+}
+.promo-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(0 0 0 / 0.16);
+  cursor: pointer;
+}
+.promo-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: min(72rem, calc(100vw - 1rem));
+  max-height: calc(100dvh - 1rem);
+  overflow: hidden;
+  border-radius: 0.75rem;
+  background: rgb(15 23 42);
+  box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.65), 0 0 0 1px rgb(255 255 255 / 0.16);
+  animation: promo-modal-in 180ms ease-out;
+  transition: box-shadow 160ms ease, transform 160ms ease;
+}
+.promo-modal__panel:hover {
+  box-shadow: 0 2rem 5rem rgb(0 0 0 / 0.72), 0 0 0 1px rgb(255 255 255 / 0.26), 0 0 2rem rgb(249 115 22 / 0.22);
+  transform: translateY(-0.125rem) scale(1.005);
+}
+.promo-modal.is-closing .promo-modal__panel {
+  animation: promo-modal-out 180ms ease-in forwards;
+}
+.promo-modal__header {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 0.875rem 0.75rem 1rem;
+  background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+}
+.promo-modal__close {
+  display: flex;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: rgb(0 0 0 / 0.35);
+  color: white;
+  cursor: pointer;
+  transition: background 160ms ease, transform 160ms ease;
+}
+.promo-modal__close:hover, .promo-modal__close:focus-visible {
+  background: rgb(0 0 0 / 0.55);
+  transform: scale(1.05);
+}
+.promo-modal__video {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: black;
+}
+.promo-modal__video iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@keyframes promo-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes promo-modal-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(0.75rem) scale(0.97);
+  }
+}
 @media (min-width: 64rem) {
   .home-page {
     --site-nav-height: 3.25rem;
@@ -1231,6 +1330,11 @@
     font-size: 1rem;
     line-height: 1.2;
   }
+  .home-hero-section__welcome [data-promo-open] {
+    padding: 0.625rem 1rem;
+    font-size: 1rem;
+    line-height: 1.2;
+  }
   .home-hero-section__welcome a img {
     width: 1.5rem;
   }
@@ -1273,6 +1377,10 @@
     gap: 0.625rem;
   }
   .home-hero-section__welcome a {
+    padding: 0.5rem 0.875rem;
+    font-size: 0.9375rem;
+  }
+  .home-hero-section__welcome [data-promo-open] {
     padding: 0.5rem 0.875rem;
     font-size: 0.9375rem;
   }
@@ -1333,6 +1441,11 @@
     font-size: 1.0625rem;
     line-height: 1.25;
   }
+  .home-hero-section__welcome [data-promo-open] {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.0625rem;
+    line-height: 1.25;
+  }
   .home-hero-section__welcome a img {
     width: 2rem;
   }
@@ -1379,6 +1492,28 @@
   .home-hero-section__welcome a {
     font-size: 1rem;
     line-height: 1.25;
+  }
+  .home-hero-section__welcome [data-promo-open] {
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+  .promo-modal {
+    align-items: center;
+    padding: 0.5rem;
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+  .promo-modal__panel {
+    width: min(100%, calc(100vw - 1rem));
+    max-height: calc(100dvh - 1rem);
+    border-radius: 0.625rem;
+  }
+  .promo-modal__header {
+    min-height: 3.25rem;
+  }
+  .promo-modal__header h2 {
+    font-size: 1rem;
+    line-height: 1.2;
   }
   .home-bottom-track {
     display: block;
