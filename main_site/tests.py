@@ -131,6 +131,7 @@ class HeatBuilderTests(SimpleTestCase):
         self.assertIn("Women's Championship", sheet_xml)
         self.assertIn('orientation="landscape"', sheet_xml)
         self.assertIn("<rowBreaks", sheet_xml)
+        self.assertGreaterEqual(sheet_xml.count('<row r="'), 3 + (3 * (2 + 1 + 5)))
 
 
 class HeatBuilderAdminTests(TestCase):

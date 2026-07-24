@@ -17,6 +17,7 @@ PRINTABLE_HEAT_HEADERS = [
     "Official Time",
     "Place",
 ]
+DAY_OF_REGISTRANT_ROWS_PER_HEAT = 5
 
 
 def build_printable_heat_workbook(assignments, year):
@@ -114,6 +115,14 @@ class _HeatWorkbook:
                             _cell("", style=5),
                             _cell("", style=5),
                         ],
+                        height=22,
+                    )
+                )
+
+            for _ in range(DAY_OF_REGISTRANT_ROWS_PER_HEAT):
+                rows.append(
+                    _row(
+                        [_cell("", style=5) for _ in PRINTABLE_HEAT_HEADERS],
                         height=22,
                     )
                 )
