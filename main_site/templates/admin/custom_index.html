@@ -1,0 +1,33 @@
+{% extends "admin/index.html" %} {% block content %}
+<div class="module" id="race-tools">
+  <table>
+    <caption>
+      Race Tools
+    </caption>
+    <tbody>
+      <tr>
+        <th scope="row">
+          <a href="{% url 'guinea_pig_admin:build_heats' %}">Build heat CSV</a>
+        </th>
+        <td>Generate current-year co-ed and championship heat assignments.</td>
+      </tr>
+      <tr>
+        <th scope="row">
+          <a href="{% url 'guinea_pig_admin:export_registrants' %}">
+            Export registrants
+          </a>
+        </th>
+        <td>Download the current-year registrant list.</td>
+      </tr>
+      <tr>
+        <th scope="row">
+          <a href="{% url 'guinea_pig_admin:email_registrants' %}">
+            Email registrants
+          </a>
+        </th>
+        <td>Email all current-year registrants.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+{{ block.super }} {% endblock %}

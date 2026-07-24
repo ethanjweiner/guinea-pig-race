@@ -1,12 +1,16 @@
-from django.contrib import admin
-from main_site.models import Result, Registrant
-import json
-from datetime import datetime
-from django.urls import path
-from django.shortcuts import render
-from django.http import HttpResponse
-from main_site.helpers import send_email
 import csv
+import json
+
+from django.contrib import admin
+from django.http import HttpResponse
+from django.shortcuts import render
+from django.urls import path
+
+from main_site.forms import HeatBuilderForm
+from main_site.heat_workbook import build_printable_heat_workbook
+from main_site.heats import build_heat_assignments
+from main_site.helpers import send_email
+from main_site.models import Result, Registrant, current_year
 
 class RegistrantAdmin(admin.ModelAdmin):
     list_display = ("first_name", "last_name", "seed_time", "email", "gender", "sponsor", "hometown")
@@ -19,29 +23,106 @@ class MyAdminSite(admin.AdminSite):
     site_header = "Guinea Pig Mile Admin"
     site_title = "Guinea Pig Mile Admin Portal"
     index_title = "Welcome to Guinea Pig Mile Administration"
+    index_template = "admin/custom_index.html"
 
     def get_urls(self):
         urls = super().get_urls()
         
         urls = [
+            path('heats/', self.admin_view(self.heats_view), name='build_heats'),
             path('email/', self.admin_view(self.email_view), name='email_registrants'),
             path('export/', self.admin_view(self.export_view), name='export_registrants'),
             path('copy-registrant-emails', self.admin_view(self.copy_registrant_emails_view), name='copy_registrant_emails'),
         ] + urls
 
         return urls
+
+    def heats_view(self, request):
+        year = current_year()
+        registrants = Registrant.objects.filter(year=year)
+
+        if request.method == 'POST':
+            form = HeatBuilderForm(request.POST)
+            if form.is_valid():
+                assignments = build_heat_assignments(
+                    registrants,
+                    form.cleaned_data['regular_heat_size'],
+                    form.cleaned_data['men_championship_size'],
+                    form.cleaned_data['women_championship_size'],
+                )
+                if request.POST.get('format') == 'xlsx':
+                    return self._heat_xlsx_response(assignments, year)
+                return self._heat_csv_response(assignments, year)
+        else:
+            form = HeatBuilderForm()
+
+        context = {
+            **self.each_context(request),
+            'form': form,
+            'registrant_count': registrants.count(),
+            'current_year': year,
+        }
+
+        return render(request, "admin/build_heats.html", context)
+
+    def _heat_csv_response(self, assignments, year):
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="heats_{year}.csv"'
+
+        writer = csv.writer(response)
+        writer.writerow([
+            'Heat Number',
+            'Heat Name',
+            'Heat Type',
+            'Position In Heat',
+            'First Name',
+            'Last Name',
+            'Email',
+            'Date of Birth',
+            'Gender',
+            'Seed Time',
+            'Sponsor',
+            'Hometown',
+        ])
+
+        for assignment in assignments:
+            registrant = assignment.registrant
+            writer.writerow([
+                assignment.heat_number,
+                assignment.heat_name,
+                assignment.heat_type,
+                assignment.position,
+                registrant.first_name,
+                registrant.last_name,
+                registrant.email,
+                registrant.date_of_birth,
+                registrant.gender,
+                registrant.seed_time,
+                registrant.sponsor or '',
+                registrant.hometown or '',
+            ])
+
+        return response
+
+    def _heat_xlsx_response(self, assignments, year):
+        response = HttpResponse(
+            build_printable_heat_workbook(assignments, year),
+            content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        )
+        response['Content-Disposition'] = f'attachment; filename="heats_{year}.xlsx"'
+        return response
     
     def export_view(self, request):
         RACE_DAY_FIELDS = ['Heat Number', 'Sticker Number', 'Unofficial Time', 'Official Time', 'Place', 'Heat Place', 'Division Place']
 
-        current_year = datetime.now().year
-        registrants = Registrant.objects.all().filter(year=current_year)
+        year = current_year()
+        registrants = Registrant.objects.all().filter(year=year)
         registrants = sorted(registrants, key=lambda x: x.seed_time_seconds, reverse=True)
         
         if request.method == 'POST':
             # Create CSV response
             response = HttpResponse(content_type='text/csv')
-            response['Content-Disposition'] = f'attachment; filename="registrants_{current_year}.csv"'
+            response['Content-Disposition'] = f'attachment; filename="registrants_{year}.csv"'
             
             writer = csv.writer(response)
             # Write header
@@ -69,20 +150,20 @@ class MyAdminSite(admin.AdminSite):
         
         context = {
             'registrant_count': len(registrants),
-            'current_year': current_year,
+            'current_year': year,
         }
         
         return render(request, "admin/export_registrants.html", context)
 
     def copy_registrant_emails_view(self, request):
-        current_year = datetime.now().year
-        registrants = Registrant.objects.all().filter(year=current_year)
+        year = current_year()
+        registrants = Registrant.objects.all().filter(year=year)
         emails = [r.email for r in registrants]
         return HttpResponse(json.dumps(emails), content_type='application/json', status=200)
 
     def email_view(self, request):
-        current_year = datetime.now().year
-        registrants = Registrant.objects.all().filter(year=current_year)
+        year = current_year()
+        registrants = Registrant.objects.all().filter(year=year)
         message = None
 
         
@@ -107,7 +188,7 @@ class MyAdminSite(admin.AdminSite):
         context = {
             'registrant_count': registrants.count(),
             'message': message,
-            'current_year': current_year,
+            'current_year': year,
         }
         
         return render(request, "admin/email_registrants.html", context)
@@ -118,4 +199,3 @@ custom_admin_site = MyAdminSite(name='guinea_pig_admin')
 # Register models with the custom admin site
 custom_admin_site.register(Result, ResultAdmin)
 custom_admin_site.register(Registrant, RegistrantAdmin)
-
