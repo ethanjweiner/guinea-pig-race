@@ -13,7 +13,7 @@ from main_site.helpers import send_email
 from main_site.models import Result, Registrant, current_year
 
 class RegistrantAdmin(admin.ModelAdmin):
-    list_display = ("first_name", "last_name", "seed_time", "email", "gender", "sponsor", "hometown")
+    list_display = ("first_name", "last_name", "age", "seed_time", "email", "gender", "sponsor", "hometown")
     list_filter = ("year",)
 
 class ResultAdmin(admin.ModelAdmin):

@@ -1,7 +1,7 @@
-from django.db import models
-from django.core.validators import RegexValidator, MinValueValidator, MaxValueValidator
-from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
+from django.db import models
+from django.utils import timezone
 
 
 def validate_seed_time(value):
@@ -92,7 +92,7 @@ class Registrant(models.Model):
     )
     seed_time = models.CharField(max_length=255, validators=[validate_seed_time])
     sponsor = models.CharField(max_length=255, blank=True, null=True)
-    
+
     @property
     def seed_time_seconds(self):
         """Convert seed_time to seconds for proper numerical sorting"""
@@ -104,6 +104,17 @@ class Registrant(models.Model):
         except (ValueError, AttributeError):
             return 0
 
+    @property
+    def age(self):
+        if not self.date_of_birth:
+            return None
+
+        today = timezone.now().date()
+        has_had_birthday = (today.month, today.day) >= (
+            self.date_of_birth.month,
+            self.date_of_birth.day,
+        )
+        return today.year - self.date_of_birth.year - (not has_had_birthday)
 
     year = models.IntegerField(default=current_year)
     hometown = models.CharField(
@@ -123,7 +134,6 @@ class Registrant(models.Model):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name} {self.year}"
-    
 
     class Meta:
         ordering = ["-created_at"]
@@ -168,6 +178,8 @@ class Result(models.Model):
 
     @property
     def gender_place(self):
-        results = Result.objects.filter(year=self.year, registrant__gender=self.registrant.gender)
+        results = Result.objects.filter(
+            year=self.year, registrant__gender=self.registrant.gender
+        )
         results = sorted(results, key=lambda x: (x.dnf, x.time_seconds))
         return results.index(self) + 1
