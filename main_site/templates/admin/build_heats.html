@@ -16,20 +16,20 @@ Heats{% endblock %} {% block breadcrumbs %}
 
     <p style="margin-bottom: 20px">
       This will assign all {{ registrant_count }} current-year registrants into
-      slow-to-fast co-ed heats, followed by women's and men's championship
-      heats.
+      progressive slow-to-fast co-ed heats, followed by women's and men's
+      championship heats.
     </p>
 
     <form method="post" action="">
       {% csrf_token %} {{ form.non_field_errors }}
 
       <div class="form-row">
-        {{ form.regular_heat_size.errors }}
-        <label for="{{ form.regular_heat_size.id_for_label }}">
-          {{ form.regular_heat_size.label }}:
+        {{ form.largest_heat_size.errors }}
+        <label for="{{ form.largest_heat_size.id_for_label }}">
+          {{ form.largest_heat_size.label }}:
         </label>
-        {{ form.regular_heat_size }}
-        <p class="help">{{ form.regular_heat_size.help_text }}</p>
+        {{ form.largest_heat_size }}
+        <p class="help">{{ form.largest_heat_size.help_text }}</p>
       </div>
 
       <div class="form-row">

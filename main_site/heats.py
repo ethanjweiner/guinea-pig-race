@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from math import ceil
+from math import ceil, log
 
 
 @dataclass(frozen=True)
@@ -28,11 +28,11 @@ def parse_seed_time(seed_time):
 
 def build_heat_assignments(
     registrants,
-    regular_heat_size,
+    largest_heat_size,
     men_championship_size,
     women_championship_size,
 ):
-    _validate_heat_size(regular_heat_size, "Regular heat size")
+    _validate_heat_size(largest_heat_size, "Largest co-ed heat size")
     _validate_heat_size(men_championship_size, "Men's championship heat size")
     _validate_heat_size(women_championship_size, "Women's championship heat size")
 
@@ -50,7 +50,17 @@ def build_heat_assignments(
     assignments = []
     heat_number = 1
 
-    for heat_registrants in _balanced_heats(regular_registrants, regular_heat_size):
+    smallest_coed_heat_size = min(
+        largest_heat_size,
+        men_championship_size,
+        women_championship_size,
+    )
+
+    for heat_registrants in _progressive_heats(
+        regular_registrants,
+        largest_heat_size,
+        smallest_coed_heat_size,
+    ):
         assignments.extend(
             _assign_heat(
                 heat_number,
@@ -96,25 +106,56 @@ def _fastest_gender_registrants(registrants, gender, count):
     return gender_registrants[:count]
 
 
-def _balanced_heats(registrants, target_size):
+def _progressive_heats(registrants, largest_size, smallest_size):
     if not registrants:
         return []
 
-    heat_count = ceil(len(registrants) / target_size)
-    base_size, larger_heat_count = divmod(len(registrants), heat_count)
-    heat_sizes = [
-        base_size + 1 if index < larger_heat_count else base_size
-        for index in range(heat_count)
-    ]
+    heat_count = ceil(len(registrants) / largest_size)
+    heat_sizes = _progressive_heat_sizes(heat_count, largest_size, smallest_size)
+
+    while sum(heat_sizes) < len(registrants):
+        heat_count += 1
+        heat_sizes = _progressive_heat_sizes(heat_count, largest_size, smallest_size)
 
     heats = []
     start = 0
     for size in heat_sizes:
         end = start + size
-        heats.append(registrants[start:end])
+        heat_registrants = registrants[start:end]
+        if heat_registrants:
+            heats.append(heat_registrants)
         start = end
 
     return heats
+
+
+def _progressive_heat_sizes(heat_count, largest_size, smallest_size):
+    if heat_count == 1:
+        return [largest_size]
+
+    size_range = largest_size - smallest_size
+    log_denominator = log(heat_count)
+    sizes = []
+
+    for index in range(heat_count):
+        progress = log(index + 1) / log_denominator
+        size = round(largest_size - (size_range * progress))
+        sizes.append(max(smallest_size, min(largest_size, size)))
+
+    return _enforce_decreasing_sizes(sizes)
+
+
+def _enforce_decreasing_sizes(sizes):
+    progressive_sizes = []
+    previous_size = None
+
+    for size in sizes:
+        if previous_size is not None:
+            size = min(size, previous_size)
+        progressive_sizes.append(size)
+        previous_size = size
+
+    return progressive_sizes
 
 
 def _assign_heat(heat_number, heat_name, heat_type, registrants):

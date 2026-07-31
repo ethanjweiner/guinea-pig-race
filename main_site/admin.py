@@ -42,11 +42,15 @@ class MyAdminSite(admin.AdminSite):
         registrants = Registrant.objects.filter(year=year)
 
         if request.method == 'POST':
-            form = HeatBuilderForm(request.POST)
+            form_data = request.POST.copy()
+            if 'largest_heat_size' not in form_data and 'regular_heat_size' in form_data:
+                form_data['largest_heat_size'] = form_data['regular_heat_size']
+
+            form = HeatBuilderForm(form_data)
             if form.is_valid():
                 assignments = build_heat_assignments(
                     registrants,
-                    form.cleaned_data['regular_heat_size'],
+                    form.cleaned_data['largest_heat_size'],
                     form.cleaned_data['men_championship_size'],
                     form.cleaned_data['women_championship_size'],
                 )

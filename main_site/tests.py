@@ -36,7 +36,7 @@ class HeatBuilderTests(SimpleTestCase):
 
         assignments = build_heat_assignments(
             runners,
-            regular_heat_size=4,
+            largest_heat_size=4,
             men_championship_size=1,
             women_championship_size=1,
         )
@@ -56,7 +56,7 @@ class HeatBuilderTests(SimpleTestCase):
         self.assertEqual(championship_names["Women's Championship"], "FastWoman")
         self.assertIn("FastNonBinary", coed_names)
 
-    def test_regular_heats_are_balanced_and_slow_to_fast(self):
+    def test_coed_heats_are_progressive_and_slow_to_fast(self):
         runners = [
             registrant(f"Runner{index}", "non-binary", f"{minutes:02d}:00")
             for index, minutes in enumerate(range(5, 15), start=1)
@@ -64,7 +64,7 @@ class HeatBuilderTests(SimpleTestCase):
 
         assignments = build_heat_assignments(
             runners,
-            regular_heat_size=4,
+            largest_heat_size=4,
             men_championship_size=1,
             women_championship_size=1,
         )
@@ -77,7 +77,7 @@ class HeatBuilderTests(SimpleTestCase):
             heat_sizes.setdefault(assignment.heat_number, 0)
             heat_sizes[assignment.heat_number] += 1
 
-        self.assertEqual(list(heat_sizes.values()), [4, 3, 3])
+        self.assertEqual(list(heat_sizes.values()), [4, 3, 2, 1])
         self.assertEqual(coed_assignments[0].registrant.seed_time, "14:00")
         self.assertEqual(coed_assignments[-1].registrant.seed_time, "05:00")
 
@@ -89,7 +89,7 @@ class HeatBuilderTests(SimpleTestCase):
 
         assignments = build_heat_assignments(
             runners,
-            regular_heat_size=4,
+            largest_heat_size=4,
             men_championship_size=1,
             women_championship_size=1,
         )
@@ -113,7 +113,7 @@ class HeatBuilderTests(SimpleTestCase):
                 registrant("FastWoman", "female", "04:50"),
                 registrant("CoedRunner", "non-binary", "07:00"),
             ],
-            regular_heat_size=4,
+            largest_heat_size=4,
             men_championship_size=1,
             women_championship_size=1,
         )
@@ -177,7 +177,7 @@ class HeatBuilderAdminTests(TestCase):
         csv_response = self.client.post(
             "/admin/heats/",
             {
-                "regular_heat_size": "4",
+                "largest_heat_size": "4",
                 "men_championship_size": "1",
                 "women_championship_size": "1",
                 "format": "csv",
@@ -186,7 +186,7 @@ class HeatBuilderAdminTests(TestCase):
         xlsx_response = self.client.post(
             "/admin/heats/",
             {
-                "regular_heat_size": "4",
+                "largest_heat_size": "4",
                 "men_championship_size": "1",
                 "women_championship_size": "1",
                 "format": "xlsx",
