@@ -6,6 +6,21 @@ from django.core.exceptions import ValidationError
 from main_site.helpers import send_email
 
 
+REGISTRATION_FIELD_LABELS = {
+    "first_name": "First name",
+    "last_name": "Last name",
+    "email": "Email",
+    "date_of_birth": "Date of birth",
+    "gender": "Sex",
+    "seed_time": "Seed time",
+    "sponsor": "Sponsor",
+    "hometown": "Home town",
+    "year": "Registration year",
+}
+
+EMAIL_YEAR_CONSTRAINT_MESSAGE = "Registrant with this Email and Year already exists."
+
+
 def index(request):
     template = loader.get_template("home/index.html")
 
@@ -63,6 +78,15 @@ def register(request):
 
             return HttpResponse(template.render({"success": True}, request))
 
+        except ValidationError as e:
+            print("REGISTRATION VALIDATION ERROR: ", e)
+            return HttpResponse(
+                template.render(
+                    {"success": False, "error": _registration_validation_message(e)},
+                    request,
+                )
+            )
+
         except Exception as e:
             print("REGISTRATION ERROR: ", e)
             return HttpResponse(
@@ -73,6 +97,34 @@ def register(request):
             )
 
     return HttpResponse(template.render({}, request))
+
+
+def _registration_validation_message(error):
+    messages = []
+
+    if hasattr(error, "message_dict"):
+        for field, field_messages in error.message_dict.items():
+            label = REGISTRATION_FIELD_LABELS.get(field)
+            for message in field_messages:
+                message = _registration_validation_text(message)
+                if label:
+                    messages.append(f"{label}: {message}")
+                else:
+                    messages.append(message)
+    elif hasattr(error, "messages"):
+        messages.extend(_registration_validation_text(message) for message in error.messages)
+
+    if not messages:
+        return "Please check your registration details and try again."
+
+    return " ".join(messages)
+
+
+def _registration_validation_text(message):
+    message = str(message)
+    if message == EMAIL_YEAR_CONSTRAINT_MESSAGE:
+        return "You have already registered for this year."
+    return message
 
 
 def awards(request):

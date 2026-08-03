@@ -1,5 +1,6 @@
 from io import BytesIO
 from types import SimpleNamespace
+from unittest.mock import patch
 from zipfile import ZipFile
 
 from django.contrib.auth.models import User
@@ -22,6 +23,49 @@ def registrant(first_name, gender, seed_time):
         hometown="",
         pk=first_name,
     )
+
+
+def registration_post_data(**overrides):
+    data = {
+        "first_name": "Test",
+        "last_name": "Runner",
+        "email": "test@example.com",
+        "email_confirm": "test@example.com",
+        "date_of_birth": "1990-01-01",
+        "gender": "non-binary",
+        "seed_time": "07:00",
+        "liability_release": "on",
+    }
+    data.update(overrides)
+    return data
+
+
+class RegistrationTests(TestCase):
+    def test_registration_shows_input_formatting_errors(self):
+        response = self.client.post(
+            "/register",
+            registration_post_data(seed_time="not-a-time"),
+        )
+
+        self.assertContains(response, "REGISTRATION ERROR")
+        self.assertContains(response, "Seed time: Invalid time format. Use MM:SS format.")
+
+    @patch("main_site.views.send_email")
+    def test_registration_shows_duplicate_email_current_year_error(self, _send_email):
+        Registrant.objects.create(
+            first_name="Existing",
+            last_name="Runner",
+            email="test@example.com",
+            date_of_birth="1990-01-01",
+            gender="non-binary",
+            seed_time="07:00",
+            year=current_year(),
+        )
+
+        response = self.client.post("/register", registration_post_data())
+
+        self.assertContains(response, "REGISTRATION ERROR")
+        self.assertContains(response, "You have already registered for this year.")
 
 
 class HeatBuilderTests(SimpleTestCase):
