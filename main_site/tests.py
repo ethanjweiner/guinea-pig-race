@@ -179,13 +179,15 @@ class HeatBuilderTests(SimpleTestCase):
 
 
 class HeatBuilderAdminTests(TestCase):
-    def test_admin_can_download_heat_csv(self):
-        user = User.objects.create_superuser(
+    def setUp(self):
+        self.user = User.objects.create_superuser(
             username="admin",
             email="admin@example.com",
             password="password",
         )
-        self.client.force_login(user)
+        self.client.force_login(self.user)
+
+    def test_admin_can_download_heat_csv(self):
         year = current_year()
 
         Registrant.objects.create(
@@ -250,3 +252,34 @@ class HeatBuilderAdminTests(TestCase):
         )
         self.assertIn("heats_", xlsx_response["Content-Disposition"])
         self.assertTrue(xlsx_response.content.startswith(b"PK"))
+
+    def test_registrant_admin_can_search_by_name_or_email(self):
+        Registrant.objects.create(
+            first_name="Mabel",
+            last_name="Sprinter",
+            email="mabel@example.com",
+            date_of_birth="1990-01-01",
+            gender="female",
+            seed_time="05:30",
+            year=current_year(),
+        )
+        Registrant.objects.create(
+            first_name="Oscar",
+            last_name="Jogger",
+            email="oscar@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="07:30",
+            year=current_year(),
+        )
+
+        name_response = self.client.get("/admin/main_site/registrant/", {"q": "Mabel"})
+        email_response = self.client.get(
+            "/admin/main_site/registrant/",
+            {"q": "oscar@example.com"},
+        )
+
+        self.assertContains(name_response, "Mabel")
+        self.assertNotContains(name_response, "Oscar")
+        self.assertContains(email_response, "oscar@example.com")
+        self.assertNotContains(email_response, "mabel@example.com")
