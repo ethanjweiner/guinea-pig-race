@@ -10,6 +10,7 @@ PRINTABLE_HEAT_HEADERS = [
     "First Name",
     "Last Name",
     "Gender",
+    "Age",
     "Seed",
     "Hometown",
     "Sponsor",
@@ -69,7 +70,7 @@ class _HeatWorkbook:
             ),
             _row([_cell("") for _ in PRINTABLE_HEAT_HEADERS], height=10),
         ]
-        self.merge_ranges.extend(["A1:K1", "A2:K2"])
+        self.merge_ranges.extend(["A1:L1", "A2:L2"])
 
         for heat_index, heat in enumerate(self.assignments_by_heat):
             if heat_index:
@@ -89,7 +90,7 @@ class _HeatWorkbook:
                     height=25,
                 )
             )
-            self.merge_ranges.append(f"A{title_row}:K{title_row}")
+            self.merge_ranges.append(f"A{title_row}:L{title_row}")
 
             rows.append(
                 _row(
@@ -108,6 +109,7 @@ class _HeatWorkbook:
                             _cell(registrant.first_name, style=5),
                             _cell(registrant.last_name, style=5),
                             _cell(registrant.gender, style=5),
+                            _cell(getattr(registrant, "age", "") or "", style=5),
                             _cell(registrant.seed_time, style=5),
                             _cell(registrant.hometown or "", style=5),
                             _cell(registrant.sponsor or "", style=5),
@@ -136,7 +138,7 @@ class _HeatWorkbook:
                 '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" '
                 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">',
                 '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>',
-                '<dimension ref="A1:K{}"/>'.format(len(self.rows)),
+                '<dimension ref="A1:L{}"/>'.format(len(self.rows)),
                 "<sheetViews><sheetView workbookViewId=\"0\" showGridLines=\"0\"/></sheetViews>",
                 "<sheetFormatPr defaultRowHeight=\"18\"/>",
                 _columns_xml(),
@@ -226,7 +228,7 @@ def _column_name(column_index):
 
 
 def _columns_xml():
-    widths = [10, 10, 15, 16, 12, 10, 22, 22, 16, 14, 10]
+    widths = [10, 10, 15, 16, 12, 8, 10, 22, 22, 16, 14, 10]
     columns = [
         f'<col min="{index}" max="{index}" width="{width}" customWidth="1"/>'
         for index, width in enumerate(widths, start=1)

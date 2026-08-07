@@ -18,6 +18,7 @@ def registrant(first_name, gender, seed_time):
         email=f"{first_name.lower()}@example.com",
         date_of_birth="1990-01-01",
         gender=gender,
+        age=36,
         seed_time=seed_time,
         sponsor="",
         hometown="",
@@ -213,6 +214,8 @@ class HeatBuilderTests(SimpleTestCase):
         self.assertIn("Co-ed", sheet_xml)
         self.assertIn("Men's Championship", sheet_xml)
         self.assertIn("Women's Championship", sheet_xml)
+        self.assertIn("<t>Age</t>", sheet_xml)
+        self.assertIn("<v>36</v>", sheet_xml)
         self.assertIn('orientation="landscape"', sheet_xml)
         self.assertIn("<rowBreaks", sheet_xml)
         self.assertGreaterEqual(sheet_xml.count('<row r="'), 3 + (3 * (2 + 1 + 5)))
