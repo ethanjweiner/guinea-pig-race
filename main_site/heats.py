@@ -2,6 +2,9 @@ from dataclasses import dataclass
 from math import ceil, log
 
 
+COED_CHAMPIONSHIP_SIZE_MULTIPLIER = 1.3
+
+
 @dataclass(frozen=True)
 class HeatAssignment:
     heat_number: int
@@ -31,10 +34,13 @@ def build_heat_assignments(
     largest_heat_size,
     men_championship_size,
     women_championship_size,
+    coed_heat_count=None,
 ):
     _validate_heat_size(largest_heat_size, "Largest co-ed heat size")
     _validate_heat_size(men_championship_size, "Men's championship heat size")
     _validate_heat_size(women_championship_size, "Women's championship heat size")
+    if coed_heat_count is not None:
+        _validate_heat_size(coed_heat_count, "Number of co-ed heats")
 
     registrants = list(registrants)
 
@@ -50,8 +56,7 @@ def build_heat_assignments(
     assignments = []
     heat_number = 1
 
-    smallest_coed_heat_size = min(
-        largest_heat_size,
+    smallest_coed_heat_size = _minimum_coed_heat_size(
         men_championship_size,
         women_championship_size,
     )
@@ -60,6 +65,7 @@ def build_heat_assignments(
         regular_registrants,
         largest_heat_size,
         smallest_coed_heat_size,
+        coed_heat_count,
     ):
         assignments.extend(
             _assign_heat(
@@ -98,6 +104,11 @@ def _validate_heat_size(size, label):
         raise ValueError(f"{label} must be at least 1.")
 
 
+def _minimum_coed_heat_size(men_championship_size, women_championship_size):
+    largest_championship_size = max(men_championship_size, women_championship_size)
+    return ceil(largest_championship_size * COED_CHAMPIONSHIP_SIZE_MULTIPLIER)
+
+
 def _fastest_gender_registrants(registrants, gender, count):
     gender_registrants = [
         registrant for registrant in registrants if getattr(registrant, "gender", None) == gender
@@ -106,16 +117,38 @@ def _fastest_gender_registrants(registrants, gender, count):
     return gender_registrants[:count]
 
 
-def _progressive_heats(registrants, largest_size, smallest_size):
+def _progressive_heats(registrants, largest_size, smallest_size, heat_count=None):
     if not registrants:
         return []
 
-    heat_count = ceil(len(registrants) / largest_size)
-    heat_sizes = _progressive_heat_sizes(heat_count, largest_size, smallest_size)
+    if largest_size < smallest_size:
+        raise ValueError(
+            "Largest co-ed heat size must be at least 30% larger than the "
+            "largest championship heat size."
+        )
 
-    while sum(heat_sizes) < len(registrants):
+    fixed_heat_count = heat_count is not None
+    if heat_count is None:
+        heat_count = ceil(len(registrants) / largest_size)
+        while (heat_count * smallest_size) > len(registrants):
+            heat_count -= 1
+        heat_count = max(1, heat_count)
+
+    heat_sizes = _progressive_heat_sizes(
+        heat_count,
+        len(registrants),
+        largest_size,
+        smallest_size,
+    )
+
+    while not fixed_heat_count and sum(heat_sizes) < len(registrants):
         heat_count += 1
-        heat_sizes = _progressive_heat_sizes(heat_count, largest_size, smallest_size)
+        heat_sizes = _progressive_heat_sizes(
+            heat_count,
+            len(registrants),
+            largest_size,
+            smallest_size,
+        )
 
     heats = []
     start = 0
@@ -129,9 +162,26 @@ def _progressive_heats(registrants, largest_size, smallest_size):
     return heats
 
 
-def _progressive_heat_sizes(heat_count, largest_size, smallest_size):
+def _progressive_heat_sizes(heat_count, registrant_count, largest_size, smallest_size):
+    minimum_capacity = heat_count * smallest_size
+    maximum_capacity = heat_count * largest_size
+
+    if registrant_count < minimum_capacity:
+        raise ValueError(
+            f"Number of co-ed heats is too high for the minimum co-ed heat size. "
+            f"With {registrant_count} non-championship registrants, use at most "
+            f"{registrant_count // smallest_size} co-ed heats."
+        )
+
+    if registrant_count > maximum_capacity:
+        raise ValueError(
+            f"Number of co-ed heats is too low for the largest co-ed heat size. "
+            f"With {registrant_count} non-championship registrants, use at least "
+            f"{ceil(registrant_count / largest_size)} co-ed heats."
+        )
+
     if heat_count == 1:
-        return [largest_size]
+        return [registrant_count]
 
     size_range = largest_size - smallest_size
     log_denominator = log(heat_count)
@@ -142,7 +192,51 @@ def _progressive_heat_sizes(heat_count, largest_size, smallest_size):
         size = round(largest_size - (size_range * progress))
         sizes.append(max(smallest_size, min(largest_size, size)))
 
-    return _enforce_decreasing_sizes(sizes)
+    return _fit_heat_sizes_to_registrant_count(
+        _enforce_decreasing_sizes(sizes),
+        registrant_count,
+        largest_size,
+        smallest_size,
+    )
+
+
+def _fit_heat_sizes_to_registrant_count(
+    sizes,
+    registrant_count,
+    largest_size,
+    smallest_size,
+):
+    while sum(sizes) < registrant_count:
+        expanded = False
+
+        for index in range(len(sizes)):
+            previous_size = largest_size if index == 0 else sizes[index - 1]
+            if sizes[index] >= largest_size or sizes[index] + 1 > previous_size:
+                continue
+
+            sizes[index] += 1
+            expanded = True
+            break
+
+        if not expanded:
+            break
+
+    while sum(sizes) > registrant_count:
+        reduced = False
+
+        for index in range(len(sizes) - 1, -1, -1):
+            next_size = sizes[index + 1] if index + 1 < len(sizes) else smallest_size
+            if sizes[index] <= smallest_size or sizes[index] - 1 < next_size:
+                continue
+
+            sizes[index] -= 1
+            reduced = True
+            break
+
+        if not reduced:
+            break
+
+    return sizes
 
 
 def _enforce_decreasing_sizes(sizes):

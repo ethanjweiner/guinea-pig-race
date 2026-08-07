@@ -49,15 +49,20 @@ class MyAdminSite(admin.AdminSite):
 
             form = HeatBuilderForm(form_data)
             if form.is_valid():
-                assignments = build_heat_assignments(
-                    registrants,
-                    form.cleaned_data['largest_heat_size'],
-                    form.cleaned_data['men_championship_size'],
-                    form.cleaned_data['women_championship_size'],
-                )
-                if request.POST.get('format') == 'xlsx':
-                    return self._heat_xlsx_response(assignments, year)
-                return self._heat_csv_response(assignments, year)
+                try:
+                    assignments = build_heat_assignments(
+                        registrants,
+                        form.cleaned_data['largest_heat_size'],
+                        form.cleaned_data['men_championship_size'],
+                        form.cleaned_data['women_championship_size'],
+                        form.cleaned_data['coed_heat_count'],
+                    )
+                except ValueError as error:
+                    form.add_error(None, str(error))
+                else:
+                    if request.POST.get('format') == 'xlsx':
+                        return self._heat_xlsx_response(assignments, year)
+                    return self._heat_csv_response(assignments, year)
         else:
             form = HeatBuilderForm()
 

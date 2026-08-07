@@ -121,13 +121,52 @@ class HeatBuilderTests(SimpleTestCase):
             heat_sizes.setdefault(assignment.heat_number, 0)
             heat_sizes[assignment.heat_number] += 1
 
-        self.assertEqual(list(heat_sizes.values()), [4, 3, 2, 1])
+        self.assertEqual(list(heat_sizes.values()), [4, 4, 2])
         self.assertEqual(coed_assignments[0].registrant.seed_time, "14:00")
         self.assertEqual(coed_assignments[-1].registrant.seed_time, "05:00")
+
+    def test_coed_heats_are_at_least_30_percent_larger_than_championship_heats(self):
+        runners = [
+            registrant(f"Runner{index}", "non-binary", f"{minutes:02d}:00")
+            for index, minutes in enumerate(range(5, 17), start=1)
+        ]
+
+        assignments = build_heat_assignments(
+            runners,
+            largest_heat_size=6,
+            men_championship_size=2,
+            women_championship_size=2,
+            coed_heat_count=3,
+        )
+
+        heat_sizes = {}
+        for assignment in assignments:
+            if assignment.heat_type != "Co-ed":
+                continue
+            heat_sizes.setdefault(assignment.heat_number, 0)
+            heat_sizes[assignment.heat_number] += 1
+
+        self.assertEqual(list(heat_sizes.values()), [6, 3, 3])
+
+    def test_requested_coed_heat_count_must_fit_minimum_heat_size(self):
+        runners = [
+            registrant(f"Runner{index}", "non-binary", f"{minutes:02d}:00")
+            for index, minutes in enumerate(range(5, 11), start=1)
+        ]
+
+        with self.assertRaisesMessage(ValueError, "Number of co-ed heats is too high"):
+            build_heat_assignments(
+                runners,
+                largest_heat_size=4,
+                men_championship_size=2,
+                women_championship_size=2,
+                coed_heat_count=3,
+            )
 
     def test_invalid_seed_times_are_slower_than_valid_seed_times(self):
         runners = [
             registrant("InvalidSeed", "male", ""),
+            registrant("SecondInvalidSeed", "non-binary", ""),
             registrant("ValidSeed", "male", "06:00"),
         ]
 
@@ -156,6 +195,7 @@ class HeatBuilderTests(SimpleTestCase):
                 registrant("FastMan", "male", "04:40"),
                 registrant("FastWoman", "female", "04:50"),
                 registrant("CoedRunner", "non-binary", "07:00"),
+                registrant("SecondCoedRunner", "non-binary", "07:30"),
             ],
             largest_heat_size=4,
             men_championship_size=1,
@@ -217,12 +257,22 @@ class HeatBuilderAdminTests(TestCase):
             seed_time="04:20",
             year=year,
         )
+        Registrant.objects.create(
+            first_name="Second",
+            last_name="Coed",
+            email="second-coed@example.com",
+            date_of_birth="1990-01-01",
+            gender="non-binary",
+            seed_time="07:20",
+            year=year,
+        )
 
         index_response = self.client.get("/admin/")
         form_response = self.client.get("/admin/heats/")
         csv_response = self.client.post(
             "/admin/heats/",
             {
+                "coed_heat_count": "1",
                 "largest_heat_size": "4",
                 "men_championship_size": "1",
                 "women_championship_size": "1",
@@ -232,6 +282,7 @@ class HeatBuilderAdminTests(TestCase):
         xlsx_response = self.client.post(
             "/admin/heats/",
             {
+                "coed_heat_count": "1",
                 "largest_heat_size": "4",
                 "men_championship_size": "1",
                 "women_championship_size": "1",

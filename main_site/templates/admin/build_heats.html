@@ -24,6 +24,15 @@ Heats{% endblock %} {% block breadcrumbs %}
       {% csrf_token %} {{ form.non_field_errors }}
 
       <div class="form-row">
+        {{ form.coed_heat_count.errors }}
+        <label for="{{ form.coed_heat_count.id_for_label }}">
+          {{ form.coed_heat_count.label }}:
+        </label>
+        {{ form.coed_heat_count }}
+        <p class="help">{{ form.coed_heat_count.help_text }}</p>
+      </div>
+
+      <div class="form-row">
         {{ form.largest_heat_size.errors }}
         <label for="{{ form.largest_heat_size.id_for_label }}">
           {{ form.largest_heat_size.label }}:
