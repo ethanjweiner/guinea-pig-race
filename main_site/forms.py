@@ -3,6 +3,25 @@ from math import ceil
 from django import forms
 
 from main_site.heats import COED_CHAMPIONSHIP_SIZE_MULTIPLIER
+from main_site.models import Result, validate_result_time
+
+
+class ResultEntryForm(forms.Form):
+    registrant_id = forms.IntegerField(widget=forms.HiddenInput)
+    time = forms.CharField(
+        label="Time",
+        max_length=255,
+        validators=[validate_result_time],
+        help_text="Use M:SS or M:SS.xx format.",
+        widget=forms.TextInput(attrs={"placeholder": "5:42.10"}),
+    )
+    heat = forms.ChoiceField(
+        label="Heat",
+        choices=[("", "Select heat"), *Result.HEAT_CHOICES],
+    )
+
+    def clean_time(self):
+        return self.cleaned_data["time"].strip()
 
 
 class HeatBuilderForm(forms.Form):

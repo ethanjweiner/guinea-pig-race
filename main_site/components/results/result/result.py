@@ -19,6 +19,7 @@ class Result(Component):
             "place": result.overall_place,
             "name": result.registrant.first_name + " " + result.registrant.last_name,
             "time": result.time,
+            "heat": result.heat,
             "dnf": result.dnf,
             "color": color,
             "gender_place": result.gender_place,

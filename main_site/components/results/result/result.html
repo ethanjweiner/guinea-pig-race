@@ -8,6 +8,13 @@
       {% if dnf %} DNF {% else %} {{ gender_place }} {% endif %}
     </div>
     <span class="flex items-center">{{ name }}</span>
+    {% if heat %}
+    <span
+      class="bg-white border-black text-black flex items-center rounded-br-lg border-2 px-2 py-1 font-extrabold"
+    >
+      {{ heat }}
+    </span>
+    {% endif %}
   </div>
   <span class="text-white flex items-center font-extralight">{{time}}</span>
 </li>

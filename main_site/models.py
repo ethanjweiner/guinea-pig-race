@@ -18,6 +18,51 @@ def validate_seed_time(value):
         raise ValidationError("Invalid time format. Use MM:SS format.")
 
 
+def validate_result_time(value):
+    """Validate that result time is in M:SS or M:SS.xx format."""
+    if not value:
+        return
+
+    try:
+        parse_result_time_seconds(value)
+    except (TypeError, ValueError):
+        raise ValidationError("Invalid time format. Use M:SS or M:SS.xx format.")
+
+
+def parse_result_time_seconds(value):
+    value = value.strip()
+
+    if "." in value:
+        time_part, fraction = value.split(".", 1)
+        if not fraction.isdigit():
+            raise ValueError("Invalid fractional seconds.")
+    else:
+        time_part = value
+        fraction = None
+
+    parts = time_part.split(":")
+    if len(parts) == 3:
+        minutes, seconds, colon_fraction = parts
+        if fraction is not None:
+            raise ValueError("Invalid time format.")
+        fraction = colon_fraction
+    elif len(parts) == 2:
+        minutes, seconds = parts
+    else:
+        raise ValueError("Invalid time format.")
+
+    minutes = int(minutes)
+    seconds = int(seconds)
+    if fraction is not None and not fraction.isdigit():
+        raise ValueError("Invalid fractional seconds.")
+
+    if minutes < 0 or seconds < 0 or seconds > 59:
+        raise ValueError("Invalid result time.")
+
+    fractional_seconds = float(f"0.{fraction}") if fraction is not None else 0
+    return minutes * 60 + seconds + fractional_seconds
+
+
 def validate_gender(value):
     """Validate gender choice"""
     if value not in [choice[0] for choice in Registrant.GENDER_CHOICES]:
@@ -147,8 +192,14 @@ class Registrant(models.Model):
 
 
 class Result(models.Model):
+    HEAT_CHOICES = [
+        (f"Heat {heat_number}", f"Heat {heat_number}")
+        for heat_number in range(1, 14)
+    ] + [("Championship", "Championship")]
+
     registrant = models.ForeignKey(Registrant, on_delete=models.CASCADE)
-    time = models.CharField(max_length=255)
+    time = models.CharField(max_length=255, validators=[validate_result_time])
+    heat = models.CharField(max_length=32, choices=HEAT_CHOICES, blank=True, default="")
     dnf = models.BooleanField(default=False)
     year = models.IntegerField(default=current_year)
 
@@ -157,18 +208,7 @@ class Result(models.Model):
         if self.dnf or not self.time:
             return float("inf")
 
-        if "." in self.time:
-            time_part, fraction = self.time.split(".", 1)
-            minutes, seconds = map(int, time_part.split(":"))
-            return minutes * 60 + seconds + float(f"0.{fraction}")
-
-        parts = self.time.split(":")
-        if len(parts) == 3:
-            minutes, seconds, fraction = parts
-            return int(minutes) * 60 + int(seconds) + float(f"0.{fraction}")
-
-        minutes, seconds = map(int, parts)
-        return minutes * 60 + seconds
+        return parse_result_time_seconds(self.time)
 
     @property
     def overall_place(self):
@@ -183,3 +223,11 @@ class Result(models.Model):
         )
         results = sorted(results, key=lambda x: (x.dnf, x.time_seconds))
         return results.index(self) + 1
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["registrant", "year"],
+                name="unique_result_per_registrant_year",
+            )
+        ]

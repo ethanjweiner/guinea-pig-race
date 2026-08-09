@@ -1,24 +1,45 @@
 import csv
 import json
+from urllib.parse import urlencode
 
 from django.contrib import admin
+from django.contrib import messages
+from django.db.models import Q
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.urls import path
 
-from main_site.forms import HeatBuilderForm
+from main_site.forms import HeatBuilderForm, ResultEntryForm
 from main_site.heat_workbook import build_printable_heat_workbook
 from main_site.heats import build_heat_assignments
 from main_site.helpers import send_email
 from main_site.models import Result, Registrant, current_year
 
+
 class RegistrantAdmin(admin.ModelAdmin):
-    list_display = ("first_name", "last_name", "age", "seed_time", "email", "gender", "sponsor", "hometown")
+    list_display = (
+        "first_name",
+        "last_name",
+        "age",
+        "seed_time",
+        "email",
+        "gender",
+        "sponsor",
+        "hometown",
+    )
     list_filter = ("year",)
     search_fields = ("first_name", "last_name", "email")
 
+
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ("registrant__first_name", "registrant__last_name", "time")
+    list_display = ("registrant", "year", "time", "heat", "dnf")
+    list_filter = ("year", "heat", "dnf")
+    search_fields = (
+        "registrant__first_name",
+        "registrant__last_name",
+        "registrant__email",
+    )
+
 
 class MyAdminSite(admin.AdminSite):
     site_header = "Guinea Pig Mile Admin"
@@ -28,15 +49,125 @@ class MyAdminSite(admin.AdminSite):
 
     def get_urls(self):
         urls = super().get_urls()
-        
+
         urls = [
             path('heats/', self.admin_view(self.heats_view), name='build_heats'),
+            path(
+                'results/register/',
+                self.admin_view(self.result_entry_view),
+                name='register_results',
+            ),
             path('email/', self.admin_view(self.email_view), name='email_registrants'),
             path('export/', self.admin_view(self.export_view), name='export_registrants'),
-            path('copy-registrant-emails', self.admin_view(self.copy_registrant_emails_view), name='copy_registrant_emails'),
+            path(
+                'copy-registrant-emails',
+                self.admin_view(self.copy_registrant_emails_view),
+                name='copy_registrant_emails',
+            ),
         ] + urls
 
         return urls
+
+    def result_entry_view(self, request):
+        year = current_year()
+        query = request.GET.get('q', '').strip()
+        posted_form = None
+        posted_registrant_id = None
+
+        if request.method == 'POST':
+            query = request.POST.get('q', '').strip()
+            posted_registrant_id = request.POST.get('registrant_id')
+            posted_form = ResultEntryForm(
+                request.POST,
+                auto_id=f"id_result_{posted_registrant_id or 'posted'}_%s",
+            )
+
+            if posted_form.is_valid():
+                try:
+                    registrant = Registrant.objects.get(
+                        pk=posted_form.cleaned_data['registrant_id'],
+                        year=year,
+                    )
+                except Registrant.DoesNotExist:
+                    posted_form.add_error(None, "Select a current-year registrant.")
+                else:
+                    Result.objects.update_or_create(
+                        registrant=registrant,
+                        year=year,
+                        defaults={
+                            'time': posted_form.cleaned_data['time'],
+                            'heat': posted_form.cleaned_data['heat'],
+                            'dnf': False,
+                        },
+                    )
+                    messages.success(
+                        request,
+                        f"Result saved for {registrant.first_name} {registrant.last_name}.",
+                    )
+                    next_query = (
+                        query or f"{registrant.first_name} {registrant.last_name}"
+                    )
+                    return redirect(f"{request.path}?{urlencode({'q': next_query})}")
+
+        registrants = list(self._result_entry_registrants(year, query))
+        existing_results = {
+            result.registrant_id: result
+            for result in Result.objects.filter(year=year, registrant__in=registrants)
+        }
+        rows = []
+
+        for registrant in registrants:
+            result = existing_results.get(registrant.pk)
+
+            if (
+                posted_form is not None
+                and posted_registrant_id
+                and str(registrant.pk) == str(posted_registrant_id)
+            ):
+                form = posted_form
+            else:
+                form = ResultEntryForm(
+                    initial={
+                        'registrant_id': registrant.pk,
+                        'time': result.time if result else '',
+                        'heat': result.heat if result else '',
+                    },
+                    auto_id=f"id_result_{registrant.pk}_%s",
+                )
+
+            rows.append(
+                {
+                    'registrant': registrant,
+                    'result': result,
+                    'form': form,
+                }
+            )
+
+        context = {
+            **self.each_context(request),
+            'current_year': year,
+            'query': query,
+            'registrant_count': Registrant.objects.filter(year=year).count(),
+            'rows': rows,
+        }
+
+        return render(request, "admin/register_results.html", context)
+
+    def _result_entry_registrants(self, year, query):
+        registrants = Registrant.objects.filter(year=year).order_by(
+            'last_name',
+            'first_name',
+        )
+
+        if not query:
+            return registrants.none()
+
+        for term in query.split():
+            registrants = registrants.filter(
+                Q(first_name__icontains=term) | Q(last_name__icontains=term)
+            )
+
+        return registrants
 
     def heats_view(self, request):
         year = current_year()

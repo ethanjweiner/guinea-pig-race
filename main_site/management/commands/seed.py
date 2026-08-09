@@ -53,6 +53,7 @@ def seed_results(year_dir, year):
                 year=year,
             ),
             time=normalize_time(result.get("time", "")),
+            heat=result.get("heat", ""),
             dnf=result.get("dnf", False),
             year=year,
         ).save()

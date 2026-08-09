@@ -6,6 +6,8 @@ from django.core.exceptions import ValidationError
 from main_site.helpers import send_email
 
 
+DEFAULT_RESULTS_YEAR = 2026
+
 REGISTRATION_FIELD_LABELS = {
     "first_name": "First name",
     "last_name": "Last name",
@@ -134,7 +136,9 @@ def awards(request):
 
 def results(request):
     template = loader.get_template("results/index.html")
-    available_years = list(Result.objects.order_by("year").values_list("year", flat=True).distinct())
+    available_years = list(
+        Result.objects.order_by("year").values_list("year", flat=True).distinct()
+    )
 
     if not available_years:
         return HttpResponse(
@@ -152,12 +156,25 @@ def results(request):
 
     requested_year = request.GET.get("year")
     try:
-        year = int(requested_year) if requested_year else available_years[-1]
+        if requested_year:
+            year = int(requested_year)
+        elif DEFAULT_RESULTS_YEAR in available_years:
+            year = DEFAULT_RESULTS_YEAR
+        else:
+            year = available_years[-1]
     except ValueError:
-        year = available_years[-1]
+        year = (
+            DEFAULT_RESULTS_YEAR
+            if DEFAULT_RESULTS_YEAR in available_years
+            else available_years[-1]
+        )
 
     if year not in available_years:
-        year = available_years[-1]
+        year = (
+            DEFAULT_RESULTS_YEAR
+            if DEFAULT_RESULTS_YEAR in available_years
+            else available_years[-1]
+        )
 
     year_index = available_years.index(year)
     previous_year = available_years[year_index - 1] if year_index > 0 else None

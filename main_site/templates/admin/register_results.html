@@ -1,0 +1,144 @@
+{% extends "admin/base_site.html" %} {% load static %} {% block title %}Register
+Results{% endblock %} {% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'guinea_pig_admin:index' %}">Home</a>
+  &rsaquo; Register Results
+</div>
+{% endblock %} {% block content %}
+
+<div id="content-main">
+  <h1>Register Results</h1>
+
+  <div class="module">
+    <h2 style="margin-bottom: 20px">
+      Register Results for Year {{ current_year }}
+    </h2>
+
+    <p style="margin-bottom: 20px">
+      Search {{ registrant_count }} current-year registrants by name, then enter
+      their finish time and heat.
+    </p>
+
+    <form method="get" action="" class="result-search-form">
+      <label for="result-search">Registrant name:</label>
+      <input
+        type="search"
+        name="q"
+        id="result-search"
+        value="{{ query }}"
+        placeholder="First or last name"
+      />
+      <button type="submit" class="button">Search</button>
+    </form>
+  </div>
+
+  {% if query %}
+  <div class="module">
+    <h2>Matches for "{{ query }}"</h2>
+
+    {% if rows %}
+    <div class="result-entry-list">
+      <div class="result-entry-header">
+        <span>Registrant</span>
+        <span>Seed Time</span>
+        <span>Result Time</span>
+        <span>Heat</span>
+        <span>Status</span>
+        <span>Save</span>
+      </div>
+
+      {% for row in rows %}
+      <form method="post" action="" class="result-entry-row">
+        {% csrf_token %} {{ row.form.non_field_errors }} {{ row.form.registrant_id }}
+        <input type="hidden" name="q" value="{{ query }}" />
+
+        <div>
+          <strong>
+            {{ row.registrant.first_name }} {{ row.registrant.last_name }}
+          </strong>
+          <br />
+          <span class="help">{{ row.registrant.email }}</span>
+        </div>
+        <div>{{ row.registrant.seed_time }}</div>
+        <div>
+          {{ row.form.time.errors }} {{ row.form.time }}
+          <p class="help">{{ row.form.time.help_text }}</p>
+        </div>
+        <div>{{ row.form.heat.errors }} {{ row.form.heat }}</div>
+        <div>{% if row.result %}Saved{% else %}Not saved{% endif %}</div>
+        <div>
+          <button type="submit" class="button default">Save result</button>
+        </div>
+      </form>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p>No current-year registrants matched that name.</p>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="module">
+    <p>Search by name to find a current-year registrant.</p>
+  </div>
+  {% endif %}
+</div>
+
+<style>
+  .result-search-form {
+    display: flex;
+    align-items: end;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .result-search-form label {
+    display: block;
+    font-weight: bold;
+  }
+
+  .result-search-form input,
+  .result-entry-row input,
+  .result-entry-row select {
+    padding: 8px;
+  }
+
+  .result-search-form input {
+    min-width: 280px;
+  }
+
+  .result-entry-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .result-entry-header,
+  .result-entry-row {
+    display: grid;
+    grid-template-columns:
+      minmax(220px, 1.8fr) 90px minmax(140px, 1fr)
+      minmax(150px, 1fr) 90px 110px;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .result-entry-header {
+    font-weight: bold;
+  }
+
+  .result-entry-row {
+    border-top: 1px solid #eee;
+    padding-top: 8px;
+  }
+
+  .help {
+    color: #666;
+    margin: 5px 0 0;
+  }
+
+  .errorlist {
+    color: #ba2121;
+    margin: 0 0 5px;
+    padding-left: 18px;
+  }
+</style>
+{% endblock %}

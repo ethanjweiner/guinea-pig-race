@@ -8,7 +8,7 @@ from django.test import SimpleTestCase, TestCase
 
 from main_site.heat_workbook import build_printable_heat_workbook
 from main_site.heats import build_heat_assignments
-from main_site.models import Registrant, current_year
+from main_site.models import Registrant, Result, current_year
 
 
 def registrant(first_name, gender, seed_time):
@@ -337,3 +337,116 @@ class HeatBuilderAdminTests(TestCase):
         self.assertNotContains(name_response, "Oscar")
         self.assertContains(email_response, "oscar@example.com")
         self.assertNotContains(email_response, "mabel@example.com")
+
+
+class ResultEntryAdminTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_superuser(
+            username="admin",
+            email="admin@example.com",
+            password="password",
+        )
+        self.client.force_login(self.user)
+
+    def test_admin_can_search_current_year_registrants_and_record_result(self):
+        year = current_year()
+        current_registrant = Registrant.objects.create(
+            first_name="Mabel",
+            last_name="Sprinter",
+            email="mabel@example.com",
+            date_of_birth="1990-01-01",
+            gender="female",
+            seed_time="05:30",
+            year=year,
+        )
+        Registrant.objects.create(
+            first_name="Mabel",
+            last_name="Pastyear",
+            email="mabel-past@example.com",
+            date_of_birth="1990-01-01",
+            gender="female",
+            seed_time="05:30",
+            year=year - 1,
+        )
+
+        index_response = self.client.get("/admin/")
+        search_response = self.client.get(
+            "/admin/results/register/",
+            {"q": "Mabel Sprinter"},
+        )
+        create_response = self.client.post(
+            "/admin/results/register/",
+            {
+                "q": "Mabel Sprinter",
+                "registrant_id": current_registrant.pk,
+                "time": "5:42.10",
+                "heat": "Heat 7",
+            },
+            follow=True,
+        )
+        update_response = self.client.post(
+            "/admin/results/register/",
+            {
+                "q": "Mabel Sprinter",
+                "registrant_id": current_registrant.pk,
+                "time": "5:40",
+                "heat": "Championship",
+            },
+            follow=True,
+        )
+
+        result = Result.objects.get(registrant=current_registrant, year=year)
+
+        self.assertContains(index_response, "Register results")
+        self.assertContains(search_response, "Mabel Sprinter")
+        self.assertNotContains(search_response, "Mabel Pastyear")
+        self.assertContains(create_response, "Result saved for Mabel Sprinter.")
+        self.assertContains(create_response, "Heat 7")
+        self.assertEqual(result.time, "5:40")
+        self.assertEqual(result.heat, "Championship")
+        self.assertEqual(
+            Result.objects.filter(registrant=current_registrant, year=year).count(),
+            1,
+        )
+        self.assertContains(update_response, "Championship")
+
+
+class ResultsPageTests(TestCase):
+    def test_results_default_to_2026_and_show_heat(self):
+        old_registrant = Registrant.objects.create(
+            first_name="Old",
+            last_name="Runner",
+            email="old@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="06:00",
+            year=2025,
+        )
+        current_registrant = Registrant.objects.create(
+            first_name="Current",
+            last_name="Runner",
+            email="current@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="05:00",
+            year=2026,
+        )
+        Result.objects.create(
+            registrant=old_registrant,
+            time="6:00",
+            heat="Heat 3",
+            year=2025,
+        )
+        Result.objects.create(
+            registrant=current_registrant,
+            time="5:00",
+            heat="Heat 4",
+            year=2026,
+        )
+
+        response = self.client.get("/results")
+
+        self.assertContains(response, "2026 Results")
+        self.assertContains(response, "Current Runner")
+        self.assertContains(response, "Heat 4")
+        self.assertNotContains(response, "Old Runner")
