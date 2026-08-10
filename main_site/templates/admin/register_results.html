@@ -79,6 +79,20 @@ Results{% endblock %} {% block breadcrumbs %}
         <button
           type="submit"
           name="action"
+          value="assign_all_heat"
+          class="button"
+          formnovalidate
+          {% if not current_heat %}disabled{% endif %}
+        >
+          {% if current_heat %}
+            Add all to {{ current_heat }}
+          {% else %}
+            Select heat
+          {% endif %}
+        </button>
+        <button
+          type="submit"
+          name="action"
           value="save_all_results"
           class="button default"
         >
@@ -152,6 +166,20 @@ Results{% endblock %} {% block breadcrumbs %}
         <button
           type="submit"
           name="action"
+          value="assign_all_heat"
+          class="button"
+          formnovalidate
+          {% if not current_heat %}disabled{% endif %}
+        >
+          {% if current_heat %}
+            Add all to {{ current_heat }}
+          {% else %}
+            Select heat
+          {% endif %}
+        </button>
+        <button
+          type="submit"
+          name="action"
           value="save_all_results"
           class="button default"
         >
@@ -202,6 +230,8 @@ Results{% endblock %} {% block breadcrumbs %}
   }
 
   .result-entry-actions {
+    display: flex;
+    gap: 8px;
     margin: 12px 0;
   }
 

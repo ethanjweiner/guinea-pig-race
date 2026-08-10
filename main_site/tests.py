@@ -569,6 +569,64 @@ class ResultEntryAdminTests(TestCase):
         self.assertEqual(second_result.time, "7:01")
         self.assertContains(response, "Saved results for 2 registrants.")
 
+    def test_admin_can_assign_all_visible_runners_to_current_heat(self):
+        year = current_year()
+        first_registrant = Registrant.objects.create(
+            first_name="Mabel",
+            last_name="Sprinter",
+            email="mabel@example.com",
+            date_of_birth="1990-01-01",
+            gender="female",
+            seed_time="05:30",
+            year=year,
+        )
+        second_registrant = Registrant.objects.create(
+            first_name="Oscar",
+            last_name="Jogger",
+            email="oscar@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="07:30",
+            year=year,
+        )
+        excluded_registrant = Registrant.objects.create(
+            first_name="Alex",
+            last_name="Flyer",
+            email="alex@example.com",
+            date_of_birth="1990-01-01",
+            gender="non-binary",
+            seed_time="06:15",
+            year=year,
+        )
+        Result.objects.create(
+            registrant=first_registrant,
+            time="5:42",
+            heat="Heat 3",
+            year=year,
+        )
+
+        response = self.client.post(
+            "/admin/results/register/",
+            {
+                "q": "Mabel Sprinter\nOscar Jogger",
+                "current_heat": "Heat 6",
+                "action": "assign_all_heat",
+            },
+            follow=True,
+        )
+
+        first_result = Result.objects.get(registrant=first_registrant, year=year)
+        second_result = Result.objects.get(registrant=second_registrant, year=year)
+
+        self.assertEqual(first_result.heat, "Heat 6")
+        self.assertEqual(first_result.time, "5:42")
+        self.assertEqual(second_result.heat, "Heat 6")
+        self.assertEqual(second_result.time, "")
+        self.assertFalse(
+            Result.objects.filter(registrant=excluded_registrant, year=year).exists()
+        )
+        self.assertContains(response, "Added 2 registrants to Heat 6.")
+
 
 class ResultsPageTests(TestCase):
     def test_results_default_to_2026_and_show_heat(self):

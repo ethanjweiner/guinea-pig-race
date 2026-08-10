@@ -90,7 +90,36 @@ class MyAdminSite(admin.AdminSite):
             )
             action, action_registrant_id = self._result_entry_action(request)
 
-            if action == 'assign_heat':
+            if action == 'assign_all_heat':
+                registrants = list(
+                    self._result_entry_registrants(year, query, heat_filter)
+                )
+                if not current_heat:
+                    messages.error(request, "Select a current heat first.")
+                elif not registrants:
+                    messages.error(request, "No registrants matched this result list.")
+                else:
+                    for registrant in registrants:
+                        self._assign_result_heat(registrant, year, current_heat)
+                    registrant_label = (
+                        "registrant" if len(registrants) == 1 else "registrants"
+                    )
+                    messages.success(
+                        request,
+                        (
+                            f"Added {len(registrants)} {registrant_label} "
+                            f"to {current_heat}."
+                        ),
+                    )
+                    return redirect(
+                        self._result_entry_url(
+                            request.path,
+                            query,
+                            current_heat,
+                            heat_filter,
+                        )
+                    )
+            elif action == 'assign_heat':
                 if not current_heat:
                     messages.error(request, "Select a current heat first.")
                 else:
@@ -102,18 +131,7 @@ class MyAdminSite(admin.AdminSite):
                     except Registrant.DoesNotExist:
                         messages.error(request, "Select a current-year registrant.")
                     else:
-                        result, _created = Result.objects.get_or_create(
-                            registrant=registrant,
-                            year=year,
-                            defaults={
-                                'time': '',
-                                'heat': current_heat,
-                                'dnf': False,
-                            },
-                        )
-                        if result.heat != current_heat:
-                            result.heat = current_heat
-                            result.save(update_fields=['heat'])
+                        self._assign_result_heat(registrant, year, current_heat)
                         messages.success(
                             request,
                             (
@@ -295,6 +313,20 @@ class MyAdminSite(admin.AdminSite):
                 'dnf': False,
             },
         )
+
+    def _assign_result_heat(self, registrant, year, heat):
+        result, _created = Result.objects.get_or_create(
+            registrant=registrant,
+            year=year,
+            defaults={
+                'time': '',
+                'heat': heat,
+                'dnf': False,
+            },
+        )
+        if result.heat != heat:
+            result.heat = heat
+            result.save(update_fields=['heat'])
 
     def _result_entry_url(self, path, query, current_heat, heat_filter):
         params = {}
