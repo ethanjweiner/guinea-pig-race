@@ -15,19 +15,18 @@ Results{% endblock %} {% block breadcrumbs %}
     </h2>
 
     <p style="margin-bottom: 20px">
-      Search {{ registrant_count }} current-year registrants by name, then enter
-      their finish time and heat.
+      Search {{ registrant_count }} current-year registrants by name. Enter one
+      name per line, or separate names with commas.
     </p>
 
     <form method="get" action="" class="result-search-form">
-      <label for="result-search">Registrant name:</label>
-      <input
-        type="search"
+      <label for="result-search">Registrant names:</label>
+      <textarea
         name="q"
         id="result-search"
-        value="{{ query }}"
-        placeholder="First or last name"
-      />
+        rows="4"
+        placeholder="Mabel Sprinter&#10;Oscar Jogger"
+      >{{ query }}</textarea>
       <button type="submit" class="button">Search</button>
     </form>
   </div>
@@ -97,12 +96,13 @@ Results{% endblock %} {% block breadcrumbs %}
   }
 
   .result-search-form input,
+  .result-search-form textarea,
   .result-entry-row input,
   .result-entry-row select {
     padding: 8px;
   }
 
-  .result-search-form input {
+  .result-search-form textarea {
     min-width: 280px;
   }
 

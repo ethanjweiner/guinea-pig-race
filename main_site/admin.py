@@ -1,5 +1,6 @@
 import csv
 import json
+import re
 from urllib.parse import urlencode
 
 from django.contrib import admin
@@ -159,15 +160,33 @@ class MyAdminSite(admin.AdminSite):
             'first_name',
         )
 
-        if not query:
+        name_filters = self._result_entry_name_filters(query)
+        if not name_filters:
             return registrants.none()
 
-        for term in query.split():
-            registrants = registrants.filter(
-                Q(first_name__icontains=term) | Q(last_name__icontains=term)
-            )
+        combined_filter = Q()
+        for name_filter in name_filters:
+            combined_filter |= name_filter
 
-        return registrants
+        return registrants.filter(combined_filter).distinct()
+
+    def _result_entry_name_filters(self, query):
+        entries = [
+            entry.strip()
+            for entry in re.split(r"[\n,;]+", query.strip())
+            if entry.strip()
+        ]
+        filters = []
+
+        for entry in entries:
+            name_filter = Q()
+            for term in entry.split():
+                name_filter &= (
+                    Q(first_name__icontains=term) | Q(last_name__icontains=term)
+                )
+            filters.append(name_filter)
+
+        return filters
 
     def heats_view(self, request):
         year = current_year()

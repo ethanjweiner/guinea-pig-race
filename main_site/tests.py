@@ -410,6 +410,45 @@ class ResultEntryAdminTests(TestCase):
         )
         self.assertContains(update_response, "Championship")
 
+    def test_admin_can_search_multiple_registrant_names_at_once(self):
+        year = current_year()
+        Registrant.objects.create(
+            first_name="Mabel",
+            last_name="Sprinter",
+            email="mabel@example.com",
+            date_of_birth="1990-01-01",
+            gender="female",
+            seed_time="05:30",
+            year=year,
+        )
+        Registrant.objects.create(
+            first_name="Oscar",
+            last_name="Jogger",
+            email="oscar@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="07:30",
+            year=year,
+        )
+        Registrant.objects.create(
+            first_name="Alex",
+            last_name="Flyer",
+            email="alex@example.com",
+            date_of_birth="1990-01-01",
+            gender="non-binary",
+            seed_time="06:15",
+            year=year,
+        )
+
+        response = self.client.get(
+            "/admin/results/register/",
+            {"q": "Mabel Sprinter\nOscar Jogger"},
+        )
+
+        self.assertContains(response, "Mabel Sprinter")
+        self.assertContains(response, "Oscar Jogger")
+        self.assertNotContains(response, "Alex Flyer")
+
 
 class ResultsPageTests(TestCase):
     def test_results_default_to_2026_and_show_heat(self):
