@@ -648,6 +648,15 @@ class ResultsPageTests(TestCase):
             seed_time="05:00",
             year=2026,
         )
+        non_binary_registrant = Registrant.objects.create(
+            first_name="Nonbinary",
+            last_name="Runner",
+            email="nonbinary@example.com",
+            date_of_birth="1990-01-01",
+            gender="non-binary",
+            seed_time="05:30",
+            year=2026,
+        )
         Result.objects.create(
             registrant=old_registrant,
             time="6:00",
@@ -660,12 +669,21 @@ class ResultsPageTests(TestCase):
             heat="Heat 4",
             year=2026,
         )
+        Result.objects.create(
+            registrant=non_binary_registrant,
+            time="5:30",
+            heat="Heat 5",
+            year=2026,
+        )
 
         response = self.client.get("/results")
 
         self.assertContains(response, "2026 Results")
+        self.assertContains(response, "Non-Binary")
         self.assertContains(response, "Current Runner")
         self.assertContains(response, "Heat 4")
+        self.assertContains(response, "Nonbinary Runner")
+        self.assertContains(response, "Heat 5")
         self.assertNotContains(response, "Old Runner")
 
     def test_results_hide_heat_assignments_without_finish_times(self):

@@ -152,6 +152,7 @@ def results(request):
                     "year": None,
                     "men_results": [],
                     "women_results": [],
+                    "non_binary_results": [],
                     "previous_year": None,
                     "next_year": None,
                 },
@@ -196,12 +197,21 @@ def results(request):
     )
     women_results.sort(key=lambda x: (x.dnf, x.time_seconds))
 
+    non_binary_results = list(
+        Result.objects.visible_results().filter(
+            registrant__gender="non-binary",
+            year=year,
+        )
+    )
+    non_binary_results.sort(key=lambda x: (x.dnf, x.time_seconds))
+
     return HttpResponse(
         template.render(
             {
                 "year": year,
                 "men_results": men_results,
                 "women_results": women_results,
+                "non_binary_results": non_binary_results,
                 "previous_year": previous_year,
                 "next_year": next_year,
             },
