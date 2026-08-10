@@ -378,9 +378,10 @@ class ResultEntryAdminTests(TestCase):
             "/admin/results/register/",
             {
                 "q": "Mabel Sprinter",
-                "registrant_id": current_registrant.pk,
-                "time": "5:42.10",
-                "heat": "Heat 7",
+                f"result_{current_registrant.pk}-registrant_id": current_registrant.pk,
+                f"result_{current_registrant.pk}-time": "5:42.10",
+                f"result_{current_registrant.pk}-heat": "Heat 7",
+                "action": f"save_result:{current_registrant.pk}",
             },
             follow=True,
         )
@@ -388,9 +389,10 @@ class ResultEntryAdminTests(TestCase):
             "/admin/results/register/",
             {
                 "q": "Mabel Sprinter",
-                "registrant_id": current_registrant.pk,
-                "time": "5:40",
-                "heat": "Championship",
+                f"result_{current_registrant.pk}-registrant_id": current_registrant.pk,
+                f"result_{current_registrant.pk}-time": "5:40",
+                f"result_{current_registrant.pk}-heat": "Championship",
+                "action": f"save_result:{current_registrant.pk}",
             },
             follow=True,
         )
@@ -479,8 +481,7 @@ class ResultEntryAdminTests(TestCase):
             {
                 "q": "Mabel Sprinter",
                 "current_heat": "Heat 4",
-                "registrant_id": current_registrant.pk,
-                "action": "assign_heat",
+                "action": f"assign_heat:{current_registrant.pk}",
             },
             follow=True,
         )
@@ -493,10 +494,10 @@ class ResultEntryAdminTests(TestCase):
             {
                 "current_heat": "Heat 4",
                 "heat_filter": "Heat 4",
-                "registrant_id": current_registrant.pk,
-                "time": "5:42",
-                "heat": "Heat 4",
-                "action": "save_result",
+                f"result_{current_registrant.pk}-registrant_id": current_registrant.pk,
+                f"result_{current_registrant.pk}-time": "5:42",
+                f"result_{current_registrant.pk}-heat": "Heat 4",
+                "action": "save_all_results",
             },
             follow=True,
         )
@@ -510,7 +511,63 @@ class ResultEntryAdminTests(TestCase):
         self.assertNotContains(filter_response, "oscar@example.com")
         self.assertEqual(result.heat, "Heat 4")
         self.assertEqual(result.time, "5:42")
-        self.assertContains(save_response, "Result saved for Mabel Sprinter.")
+        self.assertContains(save_response, "Saved results for 1 registrant.")
+
+    def test_admin_can_batch_save_visible_results(self):
+        year = current_year()
+        first_registrant = Registrant.objects.create(
+            first_name="Mabel",
+            last_name="Sprinter",
+            email="mabel@example.com",
+            date_of_birth="1990-01-01",
+            gender="female",
+            seed_time="05:30",
+            year=year,
+        )
+        second_registrant = Registrant.objects.create(
+            first_name="Oscar",
+            last_name="Jogger",
+            email="oscar@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="07:30",
+            year=year,
+        )
+        Result.objects.create(
+            registrant=first_registrant,
+            time="",
+            heat="Heat 4",
+            year=year,
+        )
+        Result.objects.create(
+            registrant=second_registrant,
+            time="",
+            heat="Heat 4",
+            year=year,
+        )
+
+        response = self.client.post(
+            "/admin/results/register/",
+            {
+                "current_heat": "Heat 4",
+                "heat_filter": "Heat 4",
+                f"result_{first_registrant.pk}-registrant_id": first_registrant.pk,
+                f"result_{first_registrant.pk}-time": "5:42",
+                f"result_{first_registrant.pk}-heat": "Heat 4",
+                f"result_{second_registrant.pk}-registrant_id": second_registrant.pk,
+                f"result_{second_registrant.pk}-time": "7:01",
+                f"result_{second_registrant.pk}-heat": "Heat 4",
+                "action": "save_all_results",
+            },
+            follow=True,
+        )
+
+        first_result = Result.objects.get(registrant=first_registrant, year=year)
+        second_result = Result.objects.get(registrant=second_registrant, year=year)
+
+        self.assertEqual(first_result.time, "5:42")
+        self.assertEqual(second_result.time, "7:01")
+        self.assertContains(response, "Saved results for 2 registrants.")
 
 
 class ResultsPageTests(TestCase):

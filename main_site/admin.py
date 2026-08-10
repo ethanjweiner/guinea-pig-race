@@ -78,8 +78,7 @@ class MyAdminSite(admin.AdminSite):
         heat_filter = self._result_entry_heat_value(
             request.GET.get('heat_filter', '')
         )
-        posted_form = None
-        posted_registrant_id = None
+        posted_forms = {}
 
         if request.method == 'POST':
             query = request.POST.get('q', '').strip()
@@ -89,8 +88,7 @@ class MyAdminSite(admin.AdminSite):
             heat_filter = self._result_entry_heat_value(
                 request.POST.get('heat_filter', '')
             )
-            posted_registrant_id = request.POST.get('registrant_id')
-            action = request.POST.get('action', 'save_result')
+            action, action_registrant_id = self._result_entry_action(request)
 
             if action == 'assign_heat':
                 if not current_heat:
@@ -98,7 +96,7 @@ class MyAdminSite(admin.AdminSite):
                 else:
                     try:
                         registrant = Registrant.objects.get(
-                            pk=posted_registrant_id,
+                            pk=action_registrant_id,
                             year=year,
                         )
                     except Registrant.DoesNotExist:
@@ -132,44 +130,70 @@ class MyAdminSite(admin.AdminSite):
                             )
                         )
             else:
-                posted_form = ResultEntryForm(
+                registrants = list(
+                    self._result_entry_registrants(year, query, heat_filter)
+                )
+                posted_forms = self._result_entry_posted_forms(
                     request.POST,
-                    auto_id=f"id_result_{posted_registrant_id or 'posted'}_%s",
+                    registrants,
                 )
 
-                if posted_form.is_valid():
-                    try:
-                        registrant = Registrant.objects.get(
-                            pk=posted_form.cleaned_data['registrant_id'],
-                            year=year,
-                        )
-                    except Registrant.DoesNotExist:
-                        posted_form.add_error(None, "Select a current-year registrant.")
-                    else:
-                        Result.objects.update_or_create(
-                            registrant=registrant,
-                            year=year,
-                            defaults={
-                                'time': posted_form.cleaned_data['time'],
-                                'heat': posted_form.cleaned_data['heat'],
-                                'dnf': False,
-                            },
-                        )
+                if action == 'save_result':
+                    target_form = posted_forms.get(action_registrant_id)
+                    target_registrants = [
+                        registrant
+                        for registrant in registrants
+                        if str(registrant.pk) == str(action_registrant_id)
+                    ]
+                    if not target_form:
+                        messages.error(request, "Select a current-year registrant.")
+                    elif self._result_entry_forms_are_valid(
+                        year,
+                        target_registrants,
+                        {action_registrant_id: target_form},
+                    ):
+                        registrant = target_registrants[0]
+                        self._save_result_entry(registrant, target_form)
                         messages.success(
                             request,
-                            f"Result saved for {registrant.first_name} {registrant.last_name}.",
-                        )
-                        next_query = (
-                            query or f"{registrant.first_name} {registrant.last_name}"
+                            (
+                                f"Result saved for {registrant.first_name} "
+                                f"{registrant.last_name}."
+                            ),
                         )
                         return redirect(
                             self._result_entry_url(
                                 request.path,
-                                next_query,
+                                query,
                                 current_heat,
                                 heat_filter,
                             )
                         )
+                elif self._result_entry_forms_are_valid(
+                    year,
+                    registrants,
+                    posted_forms,
+                ):
+                    for registrant in registrants:
+                        self._save_result_entry(
+                            registrant,
+                            posted_forms[str(registrant.pk)],
+                        )
+                    registrant_label = (
+                        "registrant" if len(registrants) == 1 else "registrants"
+                    )
+                    messages.success(
+                        request,
+                        f"Saved results for {len(registrants)} {registrant_label}.",
+                    )
+                    return redirect(
+                        self._result_entry_url(
+                            request.path,
+                            query,
+                            current_heat,
+                            heat_filter,
+                        )
+                    )
 
         registrants = list(self._result_entry_registrants(year, query, heat_filter))
         existing_results = {
@@ -180,22 +204,10 @@ class MyAdminSite(admin.AdminSite):
 
         for registrant in registrants:
             result = existing_results.get(registrant.pk)
+            form = posted_forms.get(str(registrant.pk))
 
-            if (
-                posted_form is not None
-                and posted_registrant_id
-                and str(registrant.pk) == str(posted_registrant_id)
-            ):
-                form = posted_form
-            else:
-                form = ResultEntryForm(
-                    initial={
-                        'registrant_id': registrant.pk,
-                        'time': result.time if result else '',
-                        'heat': result.heat if result else '',
-                    },
-                    auto_id=f"id_result_{registrant.pk}_%s",
-                )
+            if form is None:
+                form = self._result_entry_form(registrant, result)
 
             rows.append(
                 {
@@ -222,6 +234,67 @@ class MyAdminSite(admin.AdminSite):
         }
 
         return render(request, "admin/register_results.html", context)
+
+    def _result_entry_action(self, request):
+        action = request.POST.get('action', 'save_all_results')
+        if ':' not in action:
+            return action, request.POST.get('registrant_id')
+
+        action_name, registrant_id = action.split(':', 1)
+        return action_name, registrant_id
+
+    def _result_entry_form(self, registrant, result=None, data=None):
+        initial = {
+            'registrant_id': registrant.pk,
+            'time': result.time if result else '',
+            'heat': result.heat if result else '',
+        }
+        return ResultEntryForm(
+            data,
+            initial=initial,
+            prefix=self._result_entry_form_prefix(registrant),
+            auto_id=f"id_result_{registrant.pk}_%s",
+        )
+
+    def _result_entry_form_prefix(self, registrant):
+        return f"result_{registrant.pk}"
+
+    def _result_entry_posted_forms(self, data, registrants):
+        return {
+            str(registrant.pk): self._result_entry_form(registrant, data=data)
+            for registrant in registrants
+        }
+
+    def _result_entry_forms_are_valid(self, year, registrants, forms):
+        forms_are_valid = True
+
+        for registrant in registrants:
+            form = forms[str(registrant.pk)]
+            if not form.is_valid():
+                forms_are_valid = False
+                continue
+
+            if form.cleaned_data['registrant_id'] != registrant.pk:
+                form.add_error(None, "Select a current-year registrant.")
+                forms_are_valid = False
+                continue
+
+            if registrant.year != year:
+                form.add_error(None, "Select a current-year registrant.")
+                forms_are_valid = False
+
+        return forms_are_valid
+
+    def _save_result_entry(self, registrant, form):
+        Result.objects.update_or_create(
+            registrant=registrant,
+            year=registrant.year,
+            defaults={
+                'time': form.cleaned_data['time'],
+                'heat': form.cleaned_data['heat'],
+                'dnf': False,
+            },
+        )
 
     def _result_entry_url(self, path, query, current_heat, heat_filter):
         params = {}

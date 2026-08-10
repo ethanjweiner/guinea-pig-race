@@ -69,69 +69,96 @@ Results{% endblock %} {% block breadcrumbs %}
     <h2>{{ results_heading }}</h2>
 
     {% if rows %}
-    <div class="result-entry-list">
-      <div class="result-entry-header">
-        <span>Registrant</span>
-        <span>Seed Time</span>
-        <span>Result Time</span>
-        <span>Heat</span>
-        <span>Status</span>
-        <span>Current Heat</span>
-        <span>Save</span>
+    <form method="post" action="" class="result-entry-batch-form">
+      {% csrf_token %}
+      <input type="hidden" name="q" value="{{ query }}" />
+      <input type="hidden" name="current_heat" value="{{ current_heat }}" />
+      <input type="hidden" name="heat_filter" value="{{ heat_filter }}" />
+
+      <div class="result-entry-actions">
+        <button
+          type="submit"
+          name="action"
+          value="save_all_results"
+          class="button default"
+        >
+          Save all results
+        </button>
       </div>
 
-      {% for row in rows %}
-      <form method="post" action="" class="result-entry-row">
-        {% csrf_token %} {{ row.form.non_field_errors }} {{ row.form.registrant_id }}
-        <input type="hidden" name="q" value="{{ query }}" />
-        <input type="hidden" name="current_heat" value="{{ current_heat }}" />
-        <input type="hidden" name="heat_filter" value="{{ heat_filter }}" />
+      <div class="result-entry-list">
+        <div class="result-entry-header">
+          <span>Registrant</span>
+          <span>Seed Time</span>
+          <span>Result Time</span>
+          <span>Heat</span>
+          <span>Status</span>
+          <span>Current Heat</span>
+          <span>Save</span>
+        </div>
 
-        <div>
-          <strong>
-            {{ row.registrant.first_name }} {{ row.registrant.last_name }}
-          </strong>
-          <br />
-          <span class="help">{{ row.registrant.email }}</span>
+        {% for row in rows %}
+        <div class="result-entry-row">
+          {{ row.form.non_field_errors }} {{ row.form.registrant_id }}
+
+          <div>
+            <strong>
+              {{ row.registrant.first_name }} {{ row.registrant.last_name }}
+            </strong>
+            <br />
+            <span class="help">{{ row.registrant.email }}</span>
+          </div>
+          <div>{{ row.registrant.seed_time }}</div>
+          <div>
+            {{ row.form.time.errors }} {{ row.form.time }}
+            <p class="help">{{ row.form.time.help_text }}</p>
+          </div>
+          <div>{{ row.form.heat.errors }} {{ row.form.heat }}</div>
+          <div>{{ row.status }}</div>
+          <div>
+            <button
+              type="submit"
+              name="action"
+              value="assign_heat:{{ row.registrant.pk }}"
+              class="button"
+              formnovalidate
+              {% if not current_heat %}disabled{% endif %}
+            >
+              {% if row.is_in_current_heat %}
+                In {{ current_heat }}
+              {% elif current_heat %}
+                Add to {{ current_heat }}
+              {% else %}
+                Select heat
+              {% endif %}
+            </button>
+          </div>
+          <div>
+            <button
+              type="submit"
+              name="action"
+              value="save_result:{{ row.registrant.pk }}"
+              class="button"
+              formnovalidate
+            >
+              Save row
+            </button>
+          </div>
         </div>
-        <div>{{ row.registrant.seed_time }}</div>
-        <div>
-          {{ row.form.time.errors }} {{ row.form.time }}
-          <p class="help">{{ row.form.time.help_text }}</p>
-        </div>
-        <div>{{ row.form.heat.errors }} {{ row.form.heat }}</div>
-        <div>{{ row.status }}</div>
-        <div>
-          <button
-            type="submit"
-            name="action"
-            value="assign_heat"
-            class="button"
-            formnovalidate
-            {% if not current_heat %}disabled{% endif %}
-          >
-            {% if row.is_in_current_heat %}
-              In {{ current_heat }}
-            {% elif current_heat %}
-              Add to {{ current_heat }}
-            {% else %}
-              Select heat
-            {% endif %}
-          </button>
-        </div>
-        <div>
-          <button
-            type="submit"
-            name="action"
-            value="save_result"
-            class="button default"
-          >
-            Save result
-          </button>
-        </div>
-      </form>
-      {% endfor %}
-    </div>
+        {% endfor %}
+      </div>
+
+      <div class="result-entry-actions">
+        <button
+          type="submit"
+          name="action"
+          value="save_all_results"
+          class="button default"
+        >
+          Save all results
+        </button>
+      </div>
+    </form>
     {% else %}
     <p>No current-year registrants matched that name.</p>
     {% endif %}
@@ -172,6 +199,10 @@ Results{% endblock %} {% block breadcrumbs %}
   .result-entry-list {
     display: grid;
     gap: 8px;
+  }
+
+  .result-entry-actions {
+    margin: 12px 0;
   }
 
   .result-entry-header,
