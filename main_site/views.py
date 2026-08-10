@@ -7,7 +7,7 @@ from main_site.helpers import send_email
 
 
 DEFAULT_RESULTS_YEAR = 2026
-PRIVATE_RESULTS_YEARS = {2026}
+PRIVATE_RESULTS_YEARS = set()
 
 REGISTRATION_FIELD_LABELS = {
     "first_name": "First name",
