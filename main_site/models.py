@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
+from django.db.models import Q
 from django.utils import timezone
 
 
@@ -191,6 +192,11 @@ class Registrant(models.Model):
         ]
 
 
+class ResultQuerySet(models.QuerySet):
+    def visible_results(self):
+        return self.filter(Q(dnf=True) | ~Q(time=""))
+
+
 class Result(models.Model):
     HEAT_CHOICES = [
         (f"Heat {heat_number}", f"Heat {heat_number}")
@@ -203,6 +209,8 @@ class Result(models.Model):
     dnf = models.BooleanField(default=False)
     year = models.IntegerField(default=current_year)
 
+    objects = ResultQuerySet.as_manager()
+
     @property
     def time_seconds(self):
         if self.dnf or not self.time:
@@ -212,13 +220,13 @@ class Result(models.Model):
 
     @property
     def overall_place(self):
-        results = Result.objects.filter(year=self.year)
+        results = Result.objects.visible_results().filter(year=self.year)
         results = sorted(results, key=lambda x: (x.dnf, x.time_seconds))
         return results.index(self) + 1
 
     @property
     def gender_place(self):
-        results = Result.objects.filter(
+        results = Result.objects.visible_results().filter(
             year=self.year, registrant__gender=self.registrant.gender
         )
         results = sorted(results, key=lambda x: (x.dnf, x.time_seconds))

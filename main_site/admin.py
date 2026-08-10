@@ -72,45 +72,106 @@ class MyAdminSite(admin.AdminSite):
     def result_entry_view(self, request):
         year = current_year()
         query = request.GET.get('q', '').strip()
+        current_heat = self._result_entry_heat_value(
+            request.GET.get('current_heat', '')
+        )
+        heat_filter = self._result_entry_heat_value(
+            request.GET.get('heat_filter', '')
+        )
         posted_form = None
         posted_registrant_id = None
 
         if request.method == 'POST':
             query = request.POST.get('q', '').strip()
-            posted_registrant_id = request.POST.get('registrant_id')
-            posted_form = ResultEntryForm(
-                request.POST,
-                auto_id=f"id_result_{posted_registrant_id or 'posted'}_%s",
+            current_heat = self._result_entry_heat_value(
+                request.POST.get('current_heat', '')
             )
+            heat_filter = self._result_entry_heat_value(
+                request.POST.get('heat_filter', '')
+            )
+            posted_registrant_id = request.POST.get('registrant_id')
+            action = request.POST.get('action', 'save_result')
 
-            if posted_form.is_valid():
-                try:
-                    registrant = Registrant.objects.get(
-                        pk=posted_form.cleaned_data['registrant_id'],
-                        year=year,
-                    )
-                except Registrant.DoesNotExist:
-                    posted_form.add_error(None, "Select a current-year registrant.")
+            if action == 'assign_heat':
+                if not current_heat:
+                    messages.error(request, "Select a current heat first.")
                 else:
-                    Result.objects.update_or_create(
-                        registrant=registrant,
-                        year=year,
-                        defaults={
-                            'time': posted_form.cleaned_data['time'],
-                            'heat': posted_form.cleaned_data['heat'],
-                            'dnf': False,
-                        },
-                    )
-                    messages.success(
-                        request,
-                        f"Result saved for {registrant.first_name} {registrant.last_name}.",
-                    )
-                    next_query = (
-                        query or f"{registrant.first_name} {registrant.last_name}"
-                    )
-                    return redirect(f"{request.path}?{urlencode({'q': next_query})}")
+                    try:
+                        registrant = Registrant.objects.get(
+                            pk=posted_registrant_id,
+                            year=year,
+                        )
+                    except Registrant.DoesNotExist:
+                        messages.error(request, "Select a current-year registrant.")
+                    else:
+                        result, _created = Result.objects.get_or_create(
+                            registrant=registrant,
+                            year=year,
+                            defaults={
+                                'time': '',
+                                'heat': current_heat,
+                                'dnf': False,
+                            },
+                        )
+                        if result.heat != current_heat:
+                            result.heat = current_heat
+                            result.save(update_fields=['heat'])
+                        messages.success(
+                            request,
+                            (
+                                f"Added {registrant.first_name} "
+                                f"{registrant.last_name} to {current_heat}."
+                            ),
+                        )
+                        return redirect(
+                            self._result_entry_url(
+                                request.path,
+                                query,
+                                current_heat,
+                                heat_filter,
+                            )
+                        )
+            else:
+                posted_form = ResultEntryForm(
+                    request.POST,
+                    auto_id=f"id_result_{posted_registrant_id or 'posted'}_%s",
+                )
 
-        registrants = list(self._result_entry_registrants(year, query))
+                if posted_form.is_valid():
+                    try:
+                        registrant = Registrant.objects.get(
+                            pk=posted_form.cleaned_data['registrant_id'],
+                            year=year,
+                        )
+                    except Registrant.DoesNotExist:
+                        posted_form.add_error(None, "Select a current-year registrant.")
+                    else:
+                        Result.objects.update_or_create(
+                            registrant=registrant,
+                            year=year,
+                            defaults={
+                                'time': posted_form.cleaned_data['time'],
+                                'heat': posted_form.cleaned_data['heat'],
+                                'dnf': False,
+                            },
+                        )
+                        messages.success(
+                            request,
+                            f"Result saved for {registrant.first_name} {registrant.last_name}.",
+                        )
+                        next_query = (
+                            query or f"{registrant.first_name} {registrant.last_name}"
+                        )
+                        return redirect(
+                            self._result_entry_url(
+                                request.path,
+                                next_query,
+                                current_heat,
+                                heat_filter,
+                            )
+                        )
+
+        registrants = list(self._result_entry_registrants(year, query, heat_filter))
         existing_results = {
             result.registrant_id: result
             for result in Result.objects.filter(year=year, registrant__in=registrants)
@@ -141,6 +202,10 @@ class MyAdminSite(admin.AdminSite):
                     'registrant': registrant,
                     'result': result,
                     'form': form,
+                    'is_in_current_heat': bool(
+                        current_heat and result and result.heat == current_heat
+                    ),
+                    'status': self._result_entry_status(result),
                 }
             )
 
@@ -148,25 +213,76 @@ class MyAdminSite(admin.AdminSite):
             **self.each_context(request),
             'current_year': year,
             'query': query,
+            'current_heat': current_heat,
+            'heat_filter': heat_filter,
+            'heat_choices': Result.HEAT_CHOICES,
             'registrant_count': Registrant.objects.filter(year=year).count(),
+            'results_heading': self._result_entry_heading(query, heat_filter),
             'rows': rows,
         }
 
         return render(request, "admin/register_results.html", context)
 
-    def _result_entry_registrants(self, year, query):
+    def _result_entry_url(self, path, query, current_heat, heat_filter):
+        params = {}
+        if query:
+            params['q'] = query
+        if current_heat:
+            params['current_heat'] = current_heat
+        if heat_filter:
+            params['heat_filter'] = heat_filter
+
+        if not params:
+            return path
+
+        return f"{path}?{urlencode(params)}"
+
+    def _result_entry_heading(self, query, heat_filter):
+        if query and heat_filter:
+            return f'Matches for "{query}" in {heat_filter}'
+        if query:
+            return f'Matches for "{query}"'
+        if heat_filter:
+            return f"{heat_filter} registrants"
+        return ""
+
+    def _result_entry_heat_value(self, value):
+        value = value.strip()
+        valid_heat_values = {choice[0] for choice in Result.HEAT_CHOICES}
+        if value in valid_heat_values:
+            return value
+        return ""
+
+    def _result_entry_status(self, result):
+        if not result:
+            return "Not saved"
+        if not result.time:
+            return "Heat assigned"
+        return "Saved"
+
+    def _result_entry_registrants(self, year, query, heat_filter):
         registrants = Registrant.objects.filter(year=year).order_by(
             'last_name',
             'first_name',
         )
 
+        if heat_filter:
+            assigned_registrant_ids = Result.objects.filter(
+                year=year,
+                heat=heat_filter,
+            ).values('registrant_id')
+            registrants = registrants.filter(pk__in=assigned_registrant_ids)
+
         name_filters = self._result_entry_name_filters(query)
-        if not name_filters:
+        if not name_filters and not heat_filter:
             return registrants.none()
 
         combined_filter = Q()
         for name_filter in name_filters:
             combined_filter |= name_filter
+
+        if not name_filters:
+            return registrants.distinct()
 
         return registrants.filter(combined_filter).distinct()
 

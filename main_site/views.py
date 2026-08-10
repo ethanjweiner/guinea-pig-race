@@ -181,10 +181,14 @@ def results(request):
     next_year = available_years[year_index + 1] if year_index < len(available_years) - 1 else None
 
     # Get all results and sort in Python
-    men_results = list(Result.objects.filter(registrant__gender="male", year=year))
+    men_results = list(
+        Result.objects.visible_results().filter(registrant__gender="male", year=year)
+    )
     men_results.sort(key=lambda x: (x.dnf, x.time_seconds))
     
-    women_results = list(Result.objects.filter(registrant__gender="female", year=year))
+    women_results = list(
+        Result.objects.visible_results().filter(registrant__gender="female", year=year)
+    )
     women_results.sort(key=lambda x: (x.dnf, x.time_seconds))
 
     return HttpResponse(

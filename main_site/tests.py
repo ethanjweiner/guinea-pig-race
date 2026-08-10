@@ -449,6 +449,69 @@ class ResultEntryAdminTests(TestCase):
         self.assertContains(response, "Oscar Jogger")
         self.assertNotContains(response, "Alex Flyer")
 
+    def test_admin_can_assign_runners_to_current_heat_and_filter_that_heat(self):
+        year = current_year()
+        current_registrant = Registrant.objects.create(
+            first_name="Mabel",
+            last_name="Sprinter",
+            email="mabel@example.com",
+            date_of_birth="1990-01-01",
+            gender="female",
+            seed_time="05:30",
+            year=year,
+        )
+        Registrant.objects.create(
+            first_name="Oscar",
+            last_name="Jogger",
+            email="oscar@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="07:30",
+            year=year,
+        )
+
+        search_response = self.client.get(
+            "/admin/results/register/",
+            {"q": "Mabel Sprinter", "current_heat": "Heat 4"},
+        )
+        assign_response = self.client.post(
+            "/admin/results/register/",
+            {
+                "q": "Mabel Sprinter",
+                "current_heat": "Heat 4",
+                "registrant_id": current_registrant.pk,
+                "action": "assign_heat",
+            },
+            follow=True,
+        )
+        filter_response = self.client.get(
+            "/admin/results/register/",
+            {"current_heat": "Heat 4", "heat_filter": "Heat 4"},
+        )
+        save_response = self.client.post(
+            "/admin/results/register/",
+            {
+                "current_heat": "Heat 4",
+                "heat_filter": "Heat 4",
+                "registrant_id": current_registrant.pk,
+                "time": "5:42",
+                "heat": "Heat 4",
+                "action": "save_result",
+            },
+            follow=True,
+        )
+
+        result = Result.objects.get(registrant=current_registrant, year=year)
+
+        self.assertContains(search_response, "Add to Heat 4")
+        self.assertContains(assign_response, "Added Mabel Sprinter to Heat 4.")
+        self.assertContains(filter_response, "Heat 4 registrants")
+        self.assertContains(filter_response, "Mabel Sprinter")
+        self.assertNotContains(filter_response, "oscar@example.com")
+        self.assertEqual(result.heat, "Heat 4")
+        self.assertEqual(result.time, "5:42")
+        self.assertContains(save_response, "Result saved for Mabel Sprinter.")
+
 
 class ResultsPageTests(TestCase):
     def test_results_default_to_2026_and_show_heat(self):
@@ -489,3 +552,57 @@ class ResultsPageTests(TestCase):
         self.assertContains(response, "Current Runner")
         self.assertContains(response, "Heat 4")
         self.assertNotContains(response, "Old Runner")
+
+    def test_results_hide_heat_assignments_without_finish_times(self):
+        finished_registrant = Registrant.objects.create(
+            first_name="Finished",
+            last_name="Runner",
+            email="finished@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="05:00",
+            year=2026,
+        )
+        assigned_registrant = Registrant.objects.create(
+            first_name="Assigned",
+            last_name="Runner",
+            email="assigned@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="05:30",
+            year=2026,
+        )
+        dnf_registrant = Registrant.objects.create(
+            first_name="Dnf",
+            last_name="Runner",
+            email="dnf@example.com",
+            date_of_birth="1990-01-01",
+            gender="male",
+            seed_time="05:45",
+            year=2026,
+        )
+        Result.objects.create(
+            registrant=finished_registrant,
+            time="5:00",
+            heat="Heat 4",
+            year=2026,
+        )
+        Result.objects.create(
+            registrant=assigned_registrant,
+            time="",
+            heat="Heat 4",
+            year=2026,
+        )
+        Result.objects.create(
+            registrant=dnf_registrant,
+            time="",
+            heat="Heat 4",
+            dnf=True,
+            year=2026,
+        )
+
+        response = self.client.get("/results")
+
+        self.assertContains(response, "Finished Runner")
+        self.assertContains(response, "Dnf Runner")
+        self.assertNotContains(response, "Assigned Runner")

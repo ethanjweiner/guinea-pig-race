@@ -15,25 +15,58 @@ Results{% endblock %} {% block breadcrumbs %}
     </h2>
 
     <p style="margin-bottom: 20px">
-      Search {{ registrant_count }} current-year registrants by name. Enter one
-      name per line, or separate names with commas.
+      Select a current heat, search {{ registrant_count }} current-year
+      registrants by name, then add runners to that heat or enter their times.
     </p>
 
     <form method="get" action="" class="result-search-form">
-      <label for="result-search">Registrant names:</label>
-      <textarea
-        name="q"
-        id="result-search"
-        rows="4"
-        placeholder="Mabel Sprinter&#10;Oscar Jogger"
-      >{{ query }}</textarea>
+      <div>
+        <label for="current-heat">Current heat:</label>
+        <select name="current_heat" id="current-heat">
+          <option value="">Select current heat</option>
+          {% for value, label in heat_choices %}
+          <option
+            value="{{ value }}"
+            {% if current_heat == value %}selected{% endif %}
+          >
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label for="heat-filter">Filter by heat:</label>
+        <select name="heat_filter" id="heat-filter">
+          <option value="">Any heat</option>
+          {% for value, label in heat_choices %}
+          <option
+            value="{{ value }}"
+            {% if heat_filter == value %}selected{% endif %}
+          >
+            {{ label }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div>
+        <label for="result-search">Registrant names:</label>
+        <textarea
+          name="q"
+          id="result-search"
+          rows="4"
+          placeholder="Mabel Sprinter&#10;Oscar Jogger"
+        >{{ query }}</textarea>
+      </div>
+
       <button type="submit" class="button">Search</button>
     </form>
   </div>
 
-  {% if query %}
+  {% if results_heading %}
   <div class="module">
-    <h2>Matches for "{{ query }}"</h2>
+    <h2>{{ results_heading }}</h2>
 
     {% if rows %}
     <div class="result-entry-list">
@@ -43,6 +76,7 @@ Results{% endblock %} {% block breadcrumbs %}
         <span>Result Time</span>
         <span>Heat</span>
         <span>Status</span>
+        <span>Current Heat</span>
         <span>Save</span>
       </div>
 
@@ -50,6 +84,8 @@ Results{% endblock %} {% block breadcrumbs %}
       <form method="post" action="" class="result-entry-row">
         {% csrf_token %} {{ row.form.non_field_errors }} {{ row.form.registrant_id }}
         <input type="hidden" name="q" value="{{ query }}" />
+        <input type="hidden" name="current_heat" value="{{ current_heat }}" />
+        <input type="hidden" name="heat_filter" value="{{ heat_filter }}" />
 
         <div>
           <strong>
@@ -64,9 +100,34 @@ Results{% endblock %} {% block breadcrumbs %}
           <p class="help">{{ row.form.time.help_text }}</p>
         </div>
         <div>{{ row.form.heat.errors }} {{ row.form.heat }}</div>
-        <div>{% if row.result %}Saved{% else %}Not saved{% endif %}</div>
+        <div>{{ row.status }}</div>
         <div>
-          <button type="submit" class="button default">Save result</button>
+          <button
+            type="submit"
+            name="action"
+            value="assign_heat"
+            class="button"
+            formnovalidate
+            {% if not current_heat %}disabled{% endif %}
+          >
+            {% if row.is_in_current_heat %}
+              In {{ current_heat }}
+            {% elif current_heat %}
+              Add to {{ current_heat }}
+            {% else %}
+              Select heat
+            {% endif %}
+          </button>
+        </div>
+        <div>
+          <button
+            type="submit"
+            name="action"
+            value="save_result"
+            class="button default"
+          >
+            Save result
+          </button>
         </div>
       </form>
       {% endfor %}
@@ -85,7 +146,8 @@ Results{% endblock %} {% block breadcrumbs %}
 <style>
   .result-search-form {
     display: flex;
-    align-items: end;
+    align-items: flex-end;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 10px;
   }
@@ -96,6 +158,7 @@ Results{% endblock %} {% block breadcrumbs %}
   }
 
   .result-search-form input,
+  .result-search-form select,
   .result-search-form textarea,
   .result-entry-row input,
   .result-entry-row select {
@@ -116,7 +179,7 @@ Results{% endblock %} {% block breadcrumbs %}
     display: grid;
     grid-template-columns:
       minmax(220px, 1.8fr) 90px minmax(140px, 1fr)
-      minmax(150px, 1fr) 90px 110px;
+      minmax(150px, 1fr) 90px 140px 110px;
     gap: 12px;
     align-items: start;
   }
