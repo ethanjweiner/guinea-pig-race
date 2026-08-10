@@ -629,7 +629,7 @@ class ResultEntryAdminTests(TestCase):
 
 
 class ResultsPageTests(TestCase):
-    def test_results_default_to_2026_and_show_heat(self):
+    def test_results_default_to_latest_public_year_and_hide_2026_results(self):
         old_registrant = Registrant.objects.create(
             first_name="Old",
             last_name="Runner",
@@ -662,11 +662,14 @@ class ResultsPageTests(TestCase):
         )
 
         response = self.client.get("/results")
+        private_response = self.client.get("/results", {"year": "2026"})
 
-        self.assertContains(response, "2026 Results")
-        self.assertContains(response, "Current Runner")
-        self.assertContains(response, "Heat 4")
-        self.assertNotContains(response, "Old Runner")
+        self.assertContains(response, "2025 Results")
+        self.assertContains(response, "Old Runner")
+        self.assertContains(response, "Heat 3")
+        self.assertNotContains(response, "Current Runner")
+        self.assertContains(private_response, "2025 Results")
+        self.assertNotContains(private_response, "Current Runner")
 
     def test_results_hide_heat_assignments_without_finish_times(self):
         finished_registrant = Registrant.objects.create(
@@ -676,7 +679,7 @@ class ResultsPageTests(TestCase):
             date_of_birth="1990-01-01",
             gender="male",
             seed_time="05:00",
-            year=2026,
+            year=2025,
         )
         assigned_registrant = Registrant.objects.create(
             first_name="Assigned",
@@ -685,7 +688,7 @@ class ResultsPageTests(TestCase):
             date_of_birth="1990-01-01",
             gender="male",
             seed_time="05:30",
-            year=2026,
+            year=2025,
         )
         dnf_registrant = Registrant.objects.create(
             first_name="Dnf",
@@ -694,26 +697,26 @@ class ResultsPageTests(TestCase):
             date_of_birth="1990-01-01",
             gender="male",
             seed_time="05:45",
-            year=2026,
+            year=2025,
         )
         Result.objects.create(
             registrant=finished_registrant,
             time="5:00",
             heat="Heat 4",
-            year=2026,
+            year=2025,
         )
         Result.objects.create(
             registrant=assigned_registrant,
             time="",
             heat="Heat 4",
-            year=2026,
+            year=2025,
         )
         Result.objects.create(
             registrant=dnf_registrant,
             time="",
             heat="Heat 4",
             dnf=True,
-            year=2026,
+            year=2025,
         )
 
         response = self.client.get("/results")

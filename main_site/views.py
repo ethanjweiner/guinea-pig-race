@@ -7,6 +7,7 @@ from main_site.helpers import send_email
 
 
 DEFAULT_RESULTS_YEAR = 2026
+PRIVATE_RESULTS_YEARS = {2026}
 
 REGISTRATION_FIELD_LABELS = {
     "first_name": "First name",
@@ -137,7 +138,11 @@ def awards(request):
 def results(request):
     template = loader.get_template("results/index.html")
     available_years = list(
-        Result.objects.order_by("year").values_list("year", flat=True).distinct()
+        Result.objects.visible_results()
+        .exclude(year__in=PRIVATE_RESULTS_YEARS)
+        .order_by("year")
+        .values_list("year", flat=True)
+        .distinct()
     )
 
     if not available_years:
