@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.template.loader import render_to_string
 from django.test import SimpleTestCase, TestCase, override_settings
 
-from main_site.context_processors import _carousel_images
+from main_site.context_processors import FEATURED_CAROUSEL_IMAGES, _carousel_images
 from main_site.heat_workbook import build_printable_heat_workbook
 from main_site.heats import build_heat_assignments
 from main_site.models import Registrant, Result, current_year
@@ -74,7 +74,7 @@ class RegistrationTests(TestCase):
 
 
 class CarouselImageTests(SimpleTestCase):
-    def test_carousel_images_include_every_supported_image_in_directory(self):
+    def test_carousel_images_feature_new_photos_then_include_every_supported_image(self):
         image_names = [
             "IMG_6981.jpeg",
             "race-day.JPG",
@@ -100,9 +100,22 @@ class CarouselImageTests(SimpleTestCase):
             (carousel_dir / "not-an-image.txt").touch()
 
             with override_settings(BASE_DIR=Path(temp_dir)):
+                featured_images = [
+                    image_name
+                    for image_name in FEATURED_CAROUSEL_IMAGES
+                    if image_name in image_names
+                ]
+                remaining_images = sorted(
+                    [
+                        image_name
+                        for image_name in image_names
+                        if image_name not in featured_images
+                    ],
+                    key=str.lower,
+                )
                 expected_images = [
                     f"images/carousel/{image_name}"
-                    for image_name in sorted(image_names, key=str.lower)
+                    for image_name in featured_images + remaining_images
                 ]
                 carousel_images = _carousel_images()
                 html = render_to_string(
@@ -111,6 +124,10 @@ class CarouselImageTests(SimpleTestCase):
                 )
 
                 self.assertEqual(carousel_images, expected_images)
+                self.assertEqual(
+                    carousel_images[: len(featured_images)],
+                    [f"images/carousel/{image_name}" for image_name in featured_images],
+                )
                 self.assertEqual(html.count("<img"), len(expected_images))
                 for image in expected_images:
                     self.assertIn(f'src="/static/{image}"', html)
