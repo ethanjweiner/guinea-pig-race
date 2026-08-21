@@ -1,7 +1,25 @@
 {% extends "base.html" %} {% block content %} {% load static %}
 
 <div class="bg-slate-900 relative z-10 flex-1 justify-center p-4 md:p-10">
-  {% if success == False %}
+  {% if registration_closed %}
+  <div
+    class="bg-white/5 mx-auto mb-5 w-full max-w-2xl rounded-lg p-6 shadow-lg"
+  >
+    <h1 class="text-white font-tech mb-2 text-2xl font-bold">
+      REGISTRATION CLOSED
+    </h1>
+    <p class="text-gray-400 font-tech mb-4">
+      Registration for the 2026 Guinea Pig Mile is closed.
+    </p>
+    <a href="/" class="text-white font-tech">
+      <button
+        class="font-race from-yellow-500 to-red-500 hover:from-yellow-600 hover:to-red-600 text-white focus:shadow-outline mt-2 transform cursor-pointer rounded bg-gradient-to-r px-4 py-2 text-xl font-bold uppercase transition duration-300 ease-in-out hover:bg-gradient-to-r focus:outline-none"
+      >
+        Return to Home
+      </button>
+    </a>
+  </div>
+  {% elif success == False %}
   <div
     class="bg-white/5 mx-auto mb-5 w-full max-w-2xl rounded-lg p-6 shadow-lg"
   >
@@ -35,210 +53,6 @@
       </button>
     </a>
   </div>
-  {% else %}
-  <form
-    action="{% url 'register' %}"
-    method="post"
-    class="bg-white/5 mx-auto mb-5 w-full max-w-2xl rounded-lg p-6 shadow-lg"
-  >
-    {% csrf_token %}
-    <div class="border-white bg-yellow-400/10 mb-6 rounded border p-4">
-      <p class="text-white font-tech text-lg">
-        Registration closes
-        <span class="font-extrabold">Wednesday, August 5th</span>.
-      </p>
-    </div>
-    <div class="-mx-3 mb-6 flex flex-wrap">
-      <!-- First Name -->
-      <div class="mb-6 w-full px-3 md:w-1/2">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-first-name"
-        >
-          First Name
-        </label>
-        <input
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          id="grid-first-name"
-          name="first_name"
-          type="text"
-          placeholder="First name"
-          required
-        />
-      </div>
-      <!-- Last Name -->
-      <div class="mb-6 w-full px-3 md:w-1/2">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-last-name"
-        >
-          Last Name
-        </label>
-        <input
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          name="last_name"
-          id="grid-last-name"
-          type="text"
-          placeholder="Last name"
-          required
-        />
-      </div>
-      <!-- Email -->
-      <div class="mb-6 w-full px-3">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-email"
-        >
-          Email
-        </label>
-        <p class="text-gray-400 mb-4 text-xs">
-          We will use this email to contact you about the race.
-        </p>
-        <input
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          id="grid-email"
-          name="email"
-          type="email"
-          placeholder="runner@example.com"
-          required
-        />
-      </div>
-      <!-- Email Confirmation -->
-      <div class="mb-6 w-full px-3">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-email-confirm"
-        >
-          Confirm Email
-        </label>
-        <input
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          id="grid-email-confirm"
-          name="email_confirm"
-          type="email"
-          placeholder="runner@example.com"
-          required
-        />
-      </div>
-      <!-- Home Town -->
-      <div class="mb-6 w-full px-3">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-hometown"
-        >
-          Home Town (Optional)
-        </label>
-        <input
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          id="grid-hometown"
-          name="hometown"
-          type="text"
-          placeholder="Hometown"
-        />
-      </div>
-      <!-- Date of Birth -->
-      <div class="mb-6 w-full px-3 md:w-1/2">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-dob"
-        >
-          Date of Birth
-        </label>
-        <input
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          id="grid-dob"
-          name="date_of_birth"
-          type="date"
-          required
-        />
-      </div>
-      <!-- Gender -->
-      <div class="mb-6 w-full px-3 md:w-1/2">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-gender"
-        >
-          Sex
-        </label>
-        <select
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          id="grid-gender"
-          name="gender"
-          required
-        >
-          <option value="" disabled selected>Select</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-          <option value="non-binary">Non-Binary</option>
-        </select>
-      </div>
-      <!-- Sponsor -->
-      <div class="mb-6 w-full px-3">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-sponsor"
-        >
-          Sponsor (optional)
-        </label>
-        <input
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          id="grid-sponsor"
-          name="sponsor"
-          type="text"
-          placeholder="Sponsor name"
-        />
-      </div>
-      <!-- Seed Time -->
-      <div class="mb-2 w-full px-3">
-        <label
-          class="text-white mb-2 block text-xs font-bold uppercase tracking-wide"
-          for="grid-seed-time"
-        >
-          Seed Time
-        </label>
-        <p class="text-gray-400 mb-4 text-xs">
-          Your seed time is your expected time for completing a 1-mile run (e.g.
-          5:00). This information helps us place you in the correct starting
-          group for the race. We have a team of psychic guinea pigs who will
-          know if you're lying.
-        </p>
-        <input
-          class="bg-gray-200 text-gray-700 border-gray-200 focus:bg-white focus:border-gray-500 block w-full appearance-none rounded border px-4 py-3 leading-tight focus:outline-none"
-          id="grid-seed-time"
-          name="seed_time"
-          type="text"
-          pattern="[0-9]{1,2}:[0-5][0-9]"
-          placeholder="4:59"
-          required
-        />
-      </div>
-    </div>
-    <label
-      class="text-gray-300 border-white/10 bg-slate-950/40 mb-4 flex gap-3 rounded border p-3 text-xs leading-relaxed"
-    >
-      <input
-        class="mt-1 h-4 w-4 shrink-0 cursor-pointer"
-        name="liability_release"
-        type="checkbox"
-        required
-      />
-      <span>
-        I acknowledge that I am participating in a 1-mile track race at Danehy
-        Park at my own risk. I release and hold harmless the organizers from any
-        liability for injury, loss, or damage incurred during this event.
-      </span>
-    </label>
-    <p class="text-gray-300 font-tech mb-4 text-sm leading-relaxed">
-      Please contact ethansharp.racedirector@gmail.com if you have any questions
-      or experience any issues.
-    </p>
-    <button
-      type="submit"
-      class="font-race from-yellow-500 to-red-500 hover:from-yellow-600 hover:to-red-600 text-white focus:shadow-outline mt-2 w-full transform cursor-pointer rounded bg-gradient-to-r px-4 py-2 text-xl font-bold uppercase transition duration-300 ease-in-out hover:bg-gradient-to-r focus:outline-none"
-    >
-      Register Now
-    </button>
-  </form>
   {% endif %}
 </div>
 {% endblock content %}

@@ -46,11 +46,37 @@ def registration_post_data(**overrides):
 
 
 class RegistrationTests(TestCase):
+    def test_home_removes_event_details_and_registration_link(self):
+        response = self.client.get("/")
+
+        self.assertNotContains(response, "LOCATION:")
+        self.assertNotContains(response, "DATE:")
+        self.assertNotContains(response, "REGISTRATION DEADLINE:")
+        self.assertNotContains(response, 'href="/register"')
+
+    def test_registration_page_shows_closed_message(self):
+        response = self.client.get("/register")
+
+        self.assertContains(response, "REGISTRATION CLOSED")
+        self.assertContains(response, "Registration for the 2026 Guinea Pig Mile is closed.")
+        self.assertNotContains(response, "Registration closes")
+        self.assertNotContains(response, "Register Now")
+
+    @patch("main_site.views.send_email")
+    def test_registration_post_is_rejected_when_closed(self, send_email):
+        response = self.client.post("/register", registration_post_data())
+
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "REGISTRATION CLOSED", status_code=403)
+        self.assertEqual(Registrant.objects.count(), 0)
+        send_email.assert_not_called()
+
     def test_registration_shows_input_formatting_errors(self):
-        response = self.client.post(
-            "/register",
-            registration_post_data(seed_time="not-a-time"),
-        )
+        with patch("main_site.views.REGISTRATION_OPEN", True):
+            response = self.client.post(
+                "/register",
+                registration_post_data(seed_time="not-a-time"),
+            )
 
         self.assertContains(response, "REGISTRATION ERROR")
         self.assertContains(response, "Seed time: Invalid time format. Use MM:SS format.")
@@ -67,7 +93,8 @@ class RegistrationTests(TestCase):
             year=current_year(),
         )
 
-        response = self.client.post("/register", registration_post_data())
+        with patch("main_site.views.REGISTRATION_OPEN", True):
+            response = self.client.post("/register", registration_post_data())
 
         self.assertContains(response, "REGISTRATION ERROR")
         self.assertContains(response, "You have already registered for this year.")

@@ -1,9 +1,9 @@
 from django.conf import settings
 
 FEATURED_CAROUSEL_IMAGES = (
+    "_DSC1830.jpeg",
     "IMG_6981.jpeg",
     "IMG_6982.jpeg",
-    "_DSC1830.jpeg",
     "_DSC1963.jpeg",
     "_DSC2515.jpeg",
     "_DSC2602.JPEG",

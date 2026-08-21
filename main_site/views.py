@@ -8,6 +8,7 @@ from main_site.helpers import send_email
 
 DEFAULT_RESULTS_YEAR = 2026
 PRIVATE_RESULTS_YEARS = set()
+REGISTRATION_OPEN = False
 
 REGISTRATION_FIELD_LABELS = {
     "first_name": "First name",
@@ -36,6 +37,13 @@ def home(_):
 
 def register(request):
     template = loader.get_template("register/index.html")
+
+    if not REGISTRATION_OPEN:
+        status = 403 if request.method == "POST" else 200
+        return HttpResponse(
+            template.render({"registration_closed": True}, request),
+            status=status,
+        )
 
     if request.method == "POST":
         if request.POST["email"] != request.POST["email_confirm"]:
